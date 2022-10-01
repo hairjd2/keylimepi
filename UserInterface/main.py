@@ -1,7 +1,7 @@
 from tkinter import *
 import string
 
-def main():
+def gui():
     #created Tkinter object called root
     root = Tk()
     #sets title and size of window
@@ -11,4 +11,4 @@ def main():
     root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    gui()
