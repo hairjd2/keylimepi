@@ -77,14 +77,11 @@ def login(root, f1):
         mainPage(root)
 
 def mainPage(root):
-    # def on_closing():
-    #     stopSesh()
-
-    # root.protocol("WM_DELETE_WINDOW", on_closing)
-
-    # root.unbind('<Return>')
     lbl = Label(root, text="Welcome to KeyLimePi Password Manager!")
     lbl.pack(pady=10)
+
+    def makeNewPass(given_user, given_pass, given_site):
+        createPassword(given_user, given_pass, given_site)
 
     def clickNewPass():
         top=Toplevel(root)
@@ -106,7 +103,7 @@ def mainPage(root):
         newSite = Entry(top, width=30)
         newSite.pack()
 
-        btn = Button(top, text="Add", command=createPassword(newUser.get(), newPass.get(), newSite.get()))
+        btn = Button(top, text="Add", command=makeNewPass(newUser.get(), newPass.get(), newSite.get()))
         btn.pack(pady=10, ipadx=40)
 
     def clickGetPass():
