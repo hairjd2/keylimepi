@@ -17,7 +17,6 @@ def main():
     #sets title and size of window
     root.title("KeyLimePi")
     root.geometry('400x400')
-
     
     #creates login page and fail bool
     f1 = FailBool(False)
@@ -79,26 +78,37 @@ def mainPage(root):
         lbl.config(text="new pass")
 
     def clickGetPass():
-        lbl.config(text="get pass")
+        showinfo(title='Password', message='your password!')
 
     def clickEditPass():
-        lbl.config(text="edit pass")
+        top=Toplevel(root)
+        top.geometry("450x250")
+        top.title("Edit Password")
+        label = Label(top, text="New Password:")
+        label.pack(ipady=40)
+        newPass = Entry(top, width=30)
+        newPass.pack()
+        btn = Button(top, text="Change")
+        btn.pack(pady=40, ipadx=40)
 
     def clickChangePiPass():
         lbl.config(text="change pi pass")
 
+    # set of buttons inside of frame
     frame = Frame(root)    
     ttk.Button(frame, text='Create new password', command=clickNewPass).grid(column=0, row=0, padx=10)
     ttk.Button(frame, text='Get password', command=clickGetPass).grid(column=1, row=0, padx=10)    
-    ttk.Button(frame, text='Change KeyLimePi password', command=clickGetPass).grid(column=0, row=1, padx=10)    
-    ttk.Button(frame, text='Edit password', command=clickGetPass).grid(column=1, row=1, padx=10)    
+    ttk.Button(frame, text='Change KeyLimePi password', command=clickChangePiPass).grid(column=0, row=1, padx=10)    
+    ttk.Button(frame, text='Edit password', command=clickEditPass).grid(column=1, row=1, padx=10)    
     frame.pack(side=TOP, pady=10)
     
+    # list object
     langs = ('Java', 'C#', 'C', 'C++', 'Python', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C' )
     var = Variable(value=langs)
     listbox = Listbox(root, listvariable=var, height=6, selectmode=SINGLE)
     listbox.pack(expand=True, fill=BOTH, side=LEFT, pady=20, padx=20)
     
+    # list scrollbar object
     scrollbar = Scrollbar(root, orient=VERTICAL, command=listbox.yview)
     listbox['yscrollcommand'] = scrollbar.set
     scrollbar.pack(expand=True, fill=Y, pady=20, ipadx=3, padx=20)
@@ -107,11 +117,7 @@ def mainPage(root):
         selected_indices = listbox.curselection()
         selected_langs = ",".join([listbox.get(i) for i in selected_indices])
         msg = f'You selected: {selected_langs}'
-        showinfo(title='Information', message=msg)
-
-    listbox.bind('<<ListboxSelect>>', items_selected)
-
-    
+        showinfo(title='Information', message=msg)    
 
 if __name__ == "__main__":
     main()
