@@ -1,61 +1,64 @@
-from pexpect import pxssh
-import re
+import paramiko
 
-hostname = "192.168.0.10"
+host = "192.168.0.10"
 username = "keylimepi"
-s = pxssh.pxssh()
+class Password:
+    def __init__(self, password):
+        self.password = password
 
-def init_sesh(password):
+device_password = Password("")
 
-    try:
-        s.login(hostname, username, password)
-        s.sendline('cd keylimepi/rpicode')   # run a command
-        s.prompt()             # match the prompt
-        print(s.before)        # print everything before the prompt.
-    except pxssh.ExceptionPxssh as e:
-        print("pxssh failed on login.")
-        print(e)
+def validateConnection(given_password):
+    device_password.password = given_password
+    client = paramiko.client.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username=username, password=device_password.password)
+    command = "pwd"
+    _stdin, _stdout,_stderr = client.exec_command(command)
+    home = _stdout.read().decode()
+    client.close()
+    if home == "/home/keylimepi\n":
+        return True
+    else:
+        return False
 
-def createPassword(username, password, domain):
-    command = "python3 main.py 0 " + username + " " + password + " " + domain
-    s.sendline(command)
-    s.prompt()
-    print(s.before)
+def createPassword(given_username, given_password, domain):
+    client = paramiko.client.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username=username, password=device_password.password)
+    command = "cd keylimepi/rpicode; python3 main.py 0 " + given_username + " " + given_password + " " + domain
+    _stdin, _stdout,_stderr = client.exec_command(command)
+    print(_stdout.read().decode())
+    client.close()
 
 def listDomains():
-    s.sendline("python3 main.py 1")
-    s.prompt()
-    returnString = ''.join(map(chr, s.before))
-    returnList = returnString.split()
-    returnList.pop()
-    returnList.pop(0)
-    returnList.pop(0)
-    returnList.pop(0)
-    returnList.pop(0)
+    client = paramiko.client.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username=username, password=device_password.password)
+    command = "cd keylimepi/rpicode; python3 main.py 1"
+    _stdin, _stdout,_stderr = client.exec_command(command)
+    returnList = _stdout.read().decode().split()
     print(returnList)
+    client.close()
     return returnList
 
 def listDomainInfo(domain):
-    s.sendline("python3 main.py 2 " + domain)
-    s.prompt()
-    returnString = ''.join(map(chr, s.before))
-    returnList = returnString.split()
-    returnList.pop()
-    returnList.pop(0)
-    returnList.pop(0)
-    returnList.pop(0)
-    returnList.pop(0)
-    returnList.pop(0)
+    client = paramiko.client.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, username=username, password=device_password.password)
+    command = "cd keylimepi/rpicode; python3 main.py 2 " + domain
+    _stdin, _stdout,_stderr = client.exec_command(command)
+    returnList = _stdout.read().decode().split()
     print(returnList)
+    client.close()
     return returnList
 
-def stopSesh():
-    s.sendline("python3 main.py 3")
-    s.logout()
+# if __name__ == "__main__":
+#     if validateConnection("password"):
+#         print("Worked!")
+#     else:
+#         print("Doesn't Work")
 
-if __name__ == "__main__":
-    init_sesh("password")
-    createPassword("Noln", "goodpassword", "google")
-    listDomains()
-    listDomainInfo("google")
-    stopSesh()
+#     createPassword("Noln", "password", "amazon")
+#     listDomains()
+#     listDomainInfo("amazon")

@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import showinfo
 from turtle import left, width
-# from ssh_wrapper import *
+from ssh_wrapper import *
 
 def main():
     class FailBool:
@@ -17,7 +17,7 @@ def main():
     #sets title and size of window
     root.title("KeyLimePi")
     root.geometry('400x400')
-    
+
     #creates login page and fail bool
     f1 = FailBool(False)
     login(root, f1)   
@@ -32,29 +32,33 @@ def login(root, f1):
     piPass = Entry(root, width=30)
     piPass.pack()
 
+    failed = Label(root, text="The password was incorrect.", fg='red')
+
     # runs when 'enter' key is pressed
     def enter(e):
-        # if init_session():
+        if validateConnection(piPass.get()):
+            root.unbind('<Return>')
             unpack()
-        # if not f1.status:
-        #     failed = Label(root, text="The password was incorrect.", fg='red')
-        #     failed.pack()
-        # retry()
+        if not f1.status:
+            # failed = Label(root, text="The password was incorrect.", fg='red')
+            failed.pack()
+        retry()
     root.bind('<Return>', enter)
 
     # runs when button is clicked
     def clicked():
-        # if init_session():
+        if validateConnection(piPass.get()):
+            root.unbind('<Return>')
             unpack()
-        # if not f1.status:
-        #     failed = Label(root, text="The password was incorrect.", fg='red')
-        #     failed.pack()
-        # retry()
+        if not f1.status:
+            
+            failed.pack()
+        retry()
     btn = Button(root, text="Enter", command=clicked)
     btn.pack(pady=40, ipadx=40)
 
     def retry():
-        # IF PASSWORD IS CORRECT, LOAD NEW PAGE
+        # IF PASSWORD IS INCORRECT, RELOAD
         f1.status = True
         lbl.pack_forget()
         piPass.pack_forget()
@@ -66,45 +70,64 @@ def login(root, f1):
         lbl.pack_forget()
         piPass.pack_forget()
         btn.pack_forget()
-        # failed.unpack()
+        failed.unpack()
         mainPage(root)
 
-def mainPage(root):    
-    root.unbind('<Return>')
+def mainPage(root):
+    # def on_closing():
+    #     stopSesh()
+
+    # root.protocol("WM_DELETE_WINDOW", on_closing)
+
+    # root.unbind('<Return>')
     lbl = Label(root, text="Welcome to KeyLimePi Password Manager!")
     lbl.pack(pady=10)
 
     def clickNewPass():
-        lbl.config(text="new pass")
+        top=Toplevel(root)
+        top.geometry("450x250")
+        top.title("New Password")
+
+        label1 = Label(top, text="New Site:")
+        label1.pack(ipady=40)
+        newSite = Entry(top, width=30)
+        newSite.pack()
+
+        label2 = Label(top, text="New Password:")
+        label2.pack(ipady=40)
+        newPass = Entry(top, width=30)
+        newPass.pack()
+
+        btn = Button(top, text="Add")
+        btn.pack(pady=40, ipadx=40)
 
     def clickGetPass():
-        showinfo(title='Password', message='your password!')
+        showinfo(title='Password', message=listbox.get(listbox.curselection()))
 
     def clickEditPass():
         top=Toplevel(root)
         top.geometry("450x250")
         top.title("Edit Password")
+
         label = Label(top, text="New Password:")
         label.pack(ipady=40)
         newPass = Entry(top, width=30)
         newPass.pack()
+
         btn = Button(top, text="Change")
         btn.pack(pady=40, ipadx=40)
-
-    def clickChangePiPass():
-        lbl.config(text="change pi pass")
 
     # set of buttons inside of frame
     frame = Frame(root)    
     ttk.Button(frame, text='Create new password', command=clickNewPass).grid(column=0, row=0, padx=10)
     ttk.Button(frame, text='Get password', command=clickGetPass).grid(column=1, row=0, padx=10)    
-    ttk.Button(frame, text='Change KeyLimePi password', command=clickChangePiPass).grid(column=0, row=1, padx=10)    
     ttk.Button(frame, text='Edit password', command=clickEditPass).grid(column=1, row=1, padx=10)    
     frame.pack(side=TOP, pady=10)
     
     # list object
-    langs = ('Java', 'C#', 'C', 'C++', 'Python', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C' )
-    var = Variable(value=langs)
+    # langs = ('Java', 'C#', 'C', 'C++', 'Python', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C' )
+    domains = listDomains()
+    var = Variable(value=domains)
     listbox = Listbox(root, listvariable=var, height=6, selectmode=SINGLE)
     listbox.pack(expand=True, fill=BOTH, side=LEFT, pady=20, padx=20)
     
