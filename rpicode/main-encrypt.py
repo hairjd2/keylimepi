@@ -1,4 +1,4 @@
-from password import *
+from password-encrypt import *
 import sys
 
 if __name__ == "__main__":
@@ -9,3 +9,5 @@ if __name__ == "__main__":
        listDomains(passwords)
     if sys.argv[1] == "2":
         listDomainInfo(passwords, sys.argv[2])
+    if sys.argv[1] == "3":
+        encryptFile()
