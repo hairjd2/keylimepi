@@ -1,0 +1,12 @@
+[Unit]
+Description=Send data to LCD to prove circuit is complete and we can control input/output
+After=default.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/bin/bash /usr/local/sbin/startup_lcd.sh
+TimeoutStartSec=5
+
+[Install]
+WantedBy=default.target
