@@ -1,0 +1,1 @@
+python3 /home/keylimepi/keylimepi-lcd/lcd/lcd.py
