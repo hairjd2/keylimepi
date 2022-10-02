@@ -59,6 +59,6 @@ def listDomainInfo(domain):
 #     else:
 #         print("Doesn't Work")
 
-#     createPassword("Noln", "password", "amazon")
+#     createPassword("Nick", "blah", "gitlab")
 #     listDomains()
-#     listDomainInfo("amazon")
+#     listDomainInfo("gitlab")
