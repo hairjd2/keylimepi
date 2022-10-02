@@ -1,9 +1,11 @@
+from distutils.cmd import Command
 from doctest import script_from_examples
 from msilib import Table
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import showinfo
 from turtle import left, width
+from venv import create
 from ssh_wrapper import *
 
 def main():
@@ -70,39 +72,42 @@ def login(root, f1):
         lbl.pack_forget()
         piPass.pack_forget()
         btn.pack_forget()
-        failed.unpack()
+        if not f1.status:
+            failed.pack_forget()
         mainPage(root)
 
 def mainPage(root):
-    # def on_closing():
-    #     stopSesh()
-
-    # root.protocol("WM_DELETE_WINDOW", on_closing)
-
-    # root.unbind('<Return>')
     lbl = Label(root, text="Welcome to KeyLimePi Password Manager!")
     lbl.pack(pady=10)
+
+    def makeNewPass(given_user, given_pass, given_site):
+        createPassword(given_user, given_pass, given_site)
 
     def clickNewPass():
         top=Toplevel(root)
         top.geometry("450x250")
         top.title("New Password")
 
-        label1 = Label(top, text="New Site:")
-        label1.pack(ipady=40)
-        newSite = Entry(top, width=30)
-        newSite.pack()
+        label2 = Label(top, text="New Username:")
+        label2.pack(ipady=5)
+        newUser = Entry(top, width=30)
+        newUser.pack()
 
-        label2 = Label(top, text="New Password:")
-        label2.pack(ipady=40)
+        label3 = Label(top, text="New Password:")
+        label3.pack(ipady=5)
         newPass = Entry(top, width=30)
         newPass.pack()
 
-        btn = Button(top, text="Add")
-        btn.pack(pady=40, ipadx=40)
+        label1 = Label(top, text="New Site:")
+        label1.pack(ipady=5)
+        newSite = Entry(top, width=30)
+        newSite.pack()
+
+        btn = Button(top, text="Add", command=makeNewPass(newUser.get(), newPass.get(), newSite.get()))
+        btn.pack(pady=10, ipadx=40)
 
     def clickGetPass():
-        showinfo(title='Password', message=listbox.get(listbox.curselection()))
+        showinfo(title='Password', message=listDomainInfo(listbox.get(listbox.curselection())))
 
     def clickEditPass():
         top=Toplevel(root)
