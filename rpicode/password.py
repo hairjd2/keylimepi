@@ -1,9 +1,24 @@
 import json
+import base64
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from getpass import getpass
+
+def getKey(password):
+    bytePassword = password.encode()
+    salt = b'deadbeefdeadbeef'
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=480000,
+    )
+    return base64.urlsafe_b64encode(kdf.derive(bytePassword))
 
 def readFile():
     # Opening JSON file
-    f = open('/home/keylimepi/keylimepi/rpicode/password.json')
+    f = open('./password.json')
 
     # returns JSON object as a dictionary
     passwords = json.load(f)
@@ -14,9 +29,12 @@ def readFile():
 
 def addNewPassword(userName, password, domain, passwords):
 # Data to be written
+    masterPW = getpass("What is the master password: ")
+    fernet = Fernet(getKey(masterPW))
+
     passwords[domain] = {}
     passwords[domain]["username"] = userName
-    passwords[domain]["password"] = password
+    passwords[domain]["password"] = fernet.encrypt(password.encode()).decode()
 
 # Serializing j
     json_object = json.dumps(passwords, indent=4)
@@ -30,6 +48,9 @@ def listDomains(passwords):
         print(key)
 
 def listDomainInfo(passwords, domain):
+    masterPW = getpass("What is the master password: ")
+    fernet = Fernet(getKey(masterPW))
+
     print(passwords[domain]["username"])
-    print(passwords[domain]["password"])
+    print(fernet.decrypt(passwords[domain]["password"].encode()).decode())
 

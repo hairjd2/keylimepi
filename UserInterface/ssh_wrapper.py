@@ -1,6 +1,6 @@
 import paramiko
 
-host = "192.168.0.10"
+host = "raspberrypi.local"
 username = "keylimepi"
 class Password:
     def __init__(self, password):
