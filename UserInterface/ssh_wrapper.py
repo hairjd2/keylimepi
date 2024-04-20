@@ -7,51 +7,48 @@ class Password:
         self.password = password
 
 device_password = Password("")
+client = paramiko.client.SSHClient()
 
 def validateConnection(given_password):
     device_password.password = given_password
-    client = paramiko.client.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(host, username=username, password=device_password.password)
-    command = "pwd"
-    _stdin, _stdout,_stderr = client.exec_command(command)
-    home = _stdout.read().decode()
-    client.close()
-    if home == "/home/keylimepi\n":
-        return True
-    else:
+    try:
+        client.connect(host, username=username, password=device_password.password)
+    except:
         return False
+    return True
 
 def createPassword(given_username, given_password, domain):
-    client = paramiko.client.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(host, username=username, password=device_password.password)
-    command = "cd keylimepi/rpicode; python3 main.py 0 " + given_username + " " + given_password + " " + domain
+    command = "cd keylimepi/rpicode; python3 main.py 0 " + given_username + " " + given_password + " " + domain + " " + device_password.password
     _stdin, _stdout,_stderr = client.exec_command(command)
     print(_stdout.read().decode())
-    client.close()
+
+def changePassword(given_password, domain):
+    command = "cd keylimepi/rpicode; python3 main.py 3 " + given_password + " " + domain + " " + device_password.password
+    _stdin, _stdout,_stderr = client.exec_command(command)
+    print(_stdout.read().decode())
 
 def listDomains():
-    client = paramiko.client.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(host, username=username, password=device_password.password)
     command = "cd keylimepi/rpicode; python3 main.py 1"
     _stdin, _stdout,_stderr = client.exec_command(command)
     returnList = _stdout.read().decode().split()
     print(returnList)
-    client.close()
     return returnList
 
 def listDomainInfo(domain):
-    client = paramiko.client.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(host, username=username, password=device_password.password)
-    command = "cd keylimepi/rpicode; python3 main.py 2 " + domain
+    command = "cd keylimepi/rpicode; python3 main.py 2 " + domain + " " + device_password.password
     _stdin, _stdout,_stderr = client.exec_command(command)
     returnList = _stdout.read().decode().split()
     print(returnList)
-    client.close()
     return returnList
+
+def deleteDomain(domain):
+    command = "cd keylimepi/rpicode; python3 main.py 4 " + domain
+    _stdin, _stdout,_stderr = client.exec_command(command)
+    return True
+
+def close_client():
+    client.close()
 
 # if __name__ == "__main__":
 #     if validateConnection("password"):

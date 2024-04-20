@@ -3,7 +3,7 @@ from doctest import script_from_examples
 from msilib import Table
 from tkinter import *
 from tkinter import ttk
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showinfo, askokcancel
 from turtle import left, width
 from venv import create
 from ssh_wrapper import *
@@ -16,6 +16,10 @@ def main():
     #created Tkinter object called root
     root = Tk()
     
+    def on_closing():
+        if askokcancel("Quit", "Do you want to quit?"):
+            root.destroy()
+
     #sets title and size of window
     root.title("KeyLimePi")
     root.geometry('400x400')
@@ -25,6 +29,7 @@ def main():
     login(root, f1)   
 
     # runs GUI program
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
 
 def login(root, f1):
@@ -83,6 +88,9 @@ def mainPage(root):
     def makeNewPass(given_user, given_pass, given_site):
         createPassword(given_user, given_pass, given_site)
 
+    def changeCurrPass(given_pass, given_site):
+        changePassword(given_pass, given_site)
+
     def clickNewPass():
         top=Toplevel(root)
         top.geometry("450x250")
@@ -103,7 +111,7 @@ def mainPage(root):
         newSite = Entry(top, width=30)
         newSite.pack()
 
-        btn = Button(top, text="Add", command=makeNewPass(newUser.get(), newPass.get(), newSite.get()))
+        btn = Button(top, text="Add", command=lambda : makeNewPass(newUser.get(), newPass.get(), newSite.get()))
         btn.pack(pady=10, ipadx=40)
 
     def clickGetPass():
@@ -119,7 +127,7 @@ def mainPage(root):
         newPass = Entry(top, width=30)
         newPass.pack()
 
-        btn = Button(top, text="Change")
+        btn = Button(top, text="Change", command=lambda : changeCurrPass(newPass.get(), listbox.get(listbox.curselection())))
         btn.pack(pady=40, ipadx=40)
 
     # set of buttons inside of frame
