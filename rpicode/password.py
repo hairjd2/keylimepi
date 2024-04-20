@@ -27,14 +27,40 @@ def readFile():
     f.close()
     return passwords
 
-def addNewPassword(userName, password, domain, passwords):
+def addNewPassword(userName, password, domain, passwords, masterPW):
 # Data to be written
-    masterPW = getpass("What is the master password: ")
     fernet = Fernet(getKey(masterPW))
-
     passwords[domain] = {}
     passwords[domain]["username"] = userName
     passwords[domain]["password"] = fernet.encrypt(password.encode()).decode()
+
+# Serializing j
+    json_object = json.dumps(passwords, indent=4)
+
+# Writing to sample.json
+    with open("password.json", "w") as outfile:
+        outfile.write(json_object)
+
+def changePassword(password, domain, passwords, masterPW):
+# Data to be written
+    fernet = Fernet(getKey(masterPW))
+    if domain not in passwords.keys():
+        return
+
+    passwords[domain]["password"] = fernet.encrypt(password.encode()).decode()
+
+# Serializing j
+    json_object = json.dumps(passwords, indent=4)
+
+# Writing to sample.json
+    with open("password.json", "w") as outfile:
+        outfile.write(json_object)
+
+def deleteDomain(domain, passwords):
+    try:
+        del passwords[domain]
+    except:
+        print("Not in the passwords")
 
 # Serializing j
     json_object = json.dumps(passwords, indent=4)
@@ -47,8 +73,8 @@ def listDomains(passwords):
     for key in passwords.keys():
         print(key)
 
-def listDomainInfo(passwords, domain):
-    masterPW = getpass("What is the master password: ")
+def listDomainInfo(passwords, domain, masterPW):
+    # masterPW = getpass("What is the master password: ")
     fernet = Fernet(getKey(masterPW))
 
     print(passwords[domain]["username"])
