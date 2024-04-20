@@ -85,11 +85,14 @@ def mainPage(root):
     lbl = Label(root, text="Welcome to KeyLimePi Password Manager!")
     lbl.pack(pady=10)
 
-    def makeNewPass(given_user, given_pass, given_site):
+    def makeNewPass(given_user, given_pass, given_site, top):
         createPassword(given_user, given_pass, given_site)
+        listbox.insert(END, given_site)
+        top.destroy()
 
-    def changeCurrPass(given_pass, given_site):
+    def changeCurrPass(given_pass, given_site, top):
         changePassword(given_pass, given_site)
+        top.destroy()
 
     def clickNewPass():
         top=Toplevel(root)
@@ -111,7 +114,7 @@ def mainPage(root):
         newSite = Entry(top, width=30)
         newSite.pack()
 
-        btn = Button(top, text="Add", command=lambda : makeNewPass(newUser.get(), newPass.get(), newSite.get()))
+        btn = Button(top, text="Add", command=lambda : makeNewPass(newUser.get(), newPass.get(), newSite.get(), top))
         btn.pack(pady=10, ipadx=40)
 
     def clickGetPass():
@@ -127,14 +130,20 @@ def mainPage(root):
         newPass = Entry(top, width=30)
         newPass.pack()
 
-        btn = Button(top, text="Change", command=lambda : changeCurrPass(newPass.get(), listbox.get(listbox.curselection())))
+        btn = Button(top, text="Change", command=lambda : changeCurrPass(newPass.get(), listbox.get(listbox.curselection()), top))
         btn.pack(pady=40, ipadx=40)
+
+    def clickDelPass():
+        deleteDomain(listbox.get(listbox.curselection()))
+        listbox.delete(listbox.curselection())
+        showinfo(message="Password Deleted!")
 
     # set of buttons inside of frame
     frame = Frame(root)    
     ttk.Button(frame, text='Create new password', command=clickNewPass).grid(column=0, row=0, padx=10)
     ttk.Button(frame, text='Get password', command=clickGetPass).grid(column=1, row=0, padx=10)    
-    ttk.Button(frame, text='Edit password', command=clickEditPass).grid(column=1, row=1, padx=10)    
+    ttk.Button(frame, text='Edit password', command=clickEditPass).grid(column=1, row=1, padx=10)
+    ttk.Button(frame, text='Delete password', command=clickDelPass).grid(column=0, row=1, padx=10)
     frame.pack(side=TOP, pady=10)
     
     # list object
