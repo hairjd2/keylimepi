@@ -7,6 +7,8 @@ module #(
 );
   
 enum {init, valid_pw, bad_pw, idle, unk_cmd, stor_pw, op_res, get_pw} next_state, curr_state;
+enum {short_read, long_read} rd_cmd;
+enum {short_write, long_write} wr_cmd;
 
 always_ff @(posedge clk or negedge rst_n) begin
   if(!rst_n) begin
