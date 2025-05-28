@@ -23,8 +23,6 @@ module serial_interface(
     ) pkt_tx (
         .clk(clk),
         .rst_n(~rst),
-        // .tx_byte(8'h41),
-        // .tx_valid(1),
         .tx_byte(rx_byte),
         .tx_valid(rx_valid),
         .tx_uart(tx_uart)

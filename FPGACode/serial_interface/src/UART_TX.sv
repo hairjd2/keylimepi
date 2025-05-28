@@ -11,7 +11,7 @@ module UART_TX
 	output tx_done
 );
 
-	enum {idle, start_bit, data_bits, stop_bit, cleanup} curr_state;
+	enum {idle, start_bit, data_bits, stop_bit} curr_state;
 	int clk_counter;
 	int bit_index;
 	logic [7:0] curr_data;
@@ -25,29 +25,33 @@ module UART_TX
 
 	always_ff @(posedge clk or negedge rst_n) begin
 		if(!rst_n) begin
-			clk_counter = '0;
-			bit_index = '0;
+			clk_counter <= '0;
+			bit_index <= '0;
 			curr_data <= '0;
 			tx_done_q <= '0;
 			tx_ready_q <= '0;
 			tx_uart_q <= 1'b1;
 			curr_state <= idle;
 		end else begin
-		    clk_counter = clk_counter;
-			bit_index = bit_index;
+			// Avoid inferring latches
+		    clk_counter <= clk_counter;
+			bit_index <= bit_index;
 			curr_data <= curr_data;
 			tx_done_q <= tx_done_q;
 			tx_ready_q <= tx_ready_q;
 			tx_uart_q <= tx_uart_q;
 			curr_state <= curr_state;
+
 			case(curr_state)
 				idle: begin
+					// Set the registers to their initial values (transmit a 1) to cause a falling edge next state
 					tx_ready_q <= 0;
 					tx_uart_q <= 1;
 					tx_done_q <= 0;
 					clk_counter <= 0;
 					bit_index <= 0;
 
+					// Once data given is valid, ready to transmit
 					if(tx_valid) begin
 						curr_data <= tx_byte;
 						curr_state <= start_bit;
@@ -56,8 +60,12 @@ module UART_TX
 					end
 				end
 				start_bit: begin
-					tx_ready_q <= 1'b1;
-					tx_uart_q <= 1'b0;
+					// Trigger the bit low to send start bit
+					tx_ready_q <= 0;
+					tx_uart_q <= 0;
+
+					// Increment counter until reaching the needed value
+					// Then start transmitting the data
 					if(clk_counter < CLKS_PER_BIT-1) begin
 						clk_counter <= clk_counter + 1;
 						curr_state <= start_bit;
@@ -67,12 +75,16 @@ module UART_TX
 					end
 				end
 				data_bits: begin
+					// Set bit to transmit
 					tx_uart_q <= curr_data[bit_index];
 
+					// Increment counter until reaching the needed value
 					if(clk_counter < CLKS_PER_BIT-1) begin
 						clk_counter <= clk_counter + 1;
 						curr_state <= data_bits;
 					end else begin
+						
+					// Reset the counter increment to next index
 						clk_counter <= 0;
 
 						if(bit_index < 7) begin
@@ -85,6 +97,7 @@ module UART_TX
 					end
 				end
 				stop_bit: begin
+					// Set stop bit to high
 					tx_uart_q <= 1;
 
 					if(clk_counter < CLKS_PER_BIT-1) begin
@@ -93,13 +106,9 @@ module UART_TX
 					end else begin
 						tx_done_q <= 1;
 						clk_counter <= '0;
-						curr_state <= cleanup;
+						curr_state <= idle;
+						tx_ready_q <= 1;
 					end
-				end
-				cleanup: begin
-					tx_ready_q <= 0;
-					tx_done_q <= 0;
-					curr_state <= idle;
 				end
 				default: begin
 					curr_state <= idle;
