@@ -31,7 +31,6 @@ module rv_fifo #(
 	assign out_xact = out_val & out_rdy;
 
   	assign out_data = mem[rd_ptr];
-  	assign mem[wr_ptr] = in_data;
 	assign empty = rd_ptr == wr_ptr;
 	assign full = wr_ptr == rd_ptr - 1;
 	assign out_val = !empty;
@@ -42,23 +41,26 @@ module rv_fifo #(
   	  	  	rd_ptr <= '0;
   	  	  	wr_ptr <= '0;
 			count_q <= '0;
-		end else if(in_xact && out_xact) begin
-			rd_ptr <= rd_ptr + 1;
-			wr_ptr <= wr_ptr + 1;
-			count_q <= count_q;
-		end else if(in_xact) begin
-			rd_ptr <= rd_ptr;
-			wr_ptr <= wr_ptr + 1;
-			count_q <= count_q + 1;
-		end else if(out_xact) begin
-			rd_ptr <= rd_ptr + 1;
-			wr_ptr <= wr_ptr;
-			count_q <= count_q - 1;
-		end else begin
-			rd_ptr <= rd_ptr;
-			wr_ptr <= wr_ptr;
-			count_q <= count_q;
-		end
+	    end else begin
+	        mem[wr_ptr] = in_data;
+            if(in_xact && out_xact) begin
+                rd_ptr <= rd_ptr + 1;
+                wr_ptr <= wr_ptr + 1;
+                count_q <= count_q;
+            end else if(in_xact) begin
+                rd_ptr <= rd_ptr;
+                wr_ptr <= wr_ptr + 1;
+                count_q <= count_q + 1;
+            end else if(out_xact) begin
+                rd_ptr <= rd_ptr + 1;
+                wr_ptr <= wr_ptr;
+                count_q <= count_q - 1;
+            end else begin
+                rd_ptr <= rd_ptr;
+                wr_ptr <= wr_ptr;
+                count_q <= count_q;
+            end
+        end
   	end
 
 endmodule

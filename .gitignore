@@ -44,6 +44,13 @@
 !FPGACode/src/rtl/serial_interface/sim/
 !FPGACode/src/rtl/serial_interface/sim/*.sv
 
+!FPGACode/src/rtl/keylimepi_fpga
+!FPGACode/src/rtl/keylimepi_fpga/README.md
+!FPGACode/src/rtl/keylimepi_fpga/src/
+!FPGACode/src/rtl/keylimepi_fpga/src/*.sv
+!FPGACode/src/rtl/keylimepi_fpga/sim/
+!FPGACode/src/rtl/keylimepi_fpga/sim/*.sv
+
 !lcd/
 !lcd/*
 !lcd/scripts/
