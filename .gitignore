@@ -1,69 +1,59 @@
-__pycache__/
-*.db
-password.json
+# Make the gitignore a white list
+*
 
-## log files
-*.log
-*.jou
-*.rpt
-*.vdi
+!README.md
+!.gitignore
 
-## bitstream
-*.bit
-*.bin
-*.mcs
-*.svf
-*.image
+!FPGACode
+!FPGACode/build
+!FPGACode/build/scripts/
+!FPGACode/build/scripts/*.tcl
+!FPGACode/build/scripts/*.sh
 
-## netlist
-*.edf
-*.edif
-*.vn
-*.vm
+!FPGACode/src/
+!FPGACode/src/constraints/
+!FPGACode/src/constraints/*.xdc
+!FPGACode/src/ip/
+!FPGACode/src/rtl
 
-## SDF
-*.sdf
+!FPGACode/src/rtl/aes_cipher
+!FPGACode/src/rtl/aes_cipher/README.md
+!FPGACode/src/rtl/aes_cipher/src/
+!FPGACode/src/rtl/aes_cipher/src/*.sv
+!FPGACode/src/rtl/aes_cipher/sim/
+!FPGACode/src/rtl/aes_cipher/sim/*.sv
 
-## sim dump
-*.vcd
-*.saif
-*.tcf
-*.wdb
+!FPGACode/src/rtl/ctrl_logic
+!FPGACode/src/rtl/ctrl_logic/README.md
+!FPGACode/src/rtl/ctrl_logic/src/
+!FPGACode/src/rtl/ctrl_logic/src/*.sv
+!FPGACode/src/rtl/ctrl_logic/sim/
+!FPGACode/src/rtl/ctrl_logic/sim/*.sv
 
-## others
-unisims
+!FPGACode/src/rtl/rv_fifo
+!FPGACode/src/rtl/rv_fifo/README.md
+!FPGACode/src/rtl/rv_fifo/src/
+!FPGACode/src/rtl/rv_fifo/src/*.sv
+!FPGACode/src/rtl/rv_fifo/sim/
+!FPGACode/src/rtl/rv_fifo/sim/*.sv
 
-## C-files
-*.elf
-*.a
-*.sa
-*.so
-*.lib
+!FPGACode/src/rtl/serial_interface
+!FPGACode/src/rtl/serial_interface/README.md
+!FPGACode/src/rtl/serial_interface/src/
+!FPGACode/src/rtl/serial_interface/src/*.sv
+!FPGACode/src/rtl/serial_interface/sim/
+!FPGACode/src/rtl/serial_interface/sim/*.sv
 
-## dirs
-vivado.cache/
-vivado.hw/
-vivado.ip_user_files/
-vivado.runs/
-vivado.sim/
+!lcd/
+!lcd/*
+!lcd/scripts/
+!lcd/scripts/*
 
-###### for Xilinx Vivado|ISE
-.Xil/
-.cache/
-fsm_encoding.os
-tab_*/
-webtalk.*
-vivado_pid*.str
-hs_err_pid*
-xelab.*
-xsim.*
-xvlog.*
-*.cache
-*.sim
-*.runs
-*.hw
-*.backup.*
-*.debug
+!rpicode/
+!rpicode/*.py
 
-## checkpoint files
-*.dcp
+!sockets/
+!sockets/*.py
+
+!UserInterface/
+!UserInterface/*.py

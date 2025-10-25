@@ -5,6 +5,7 @@
     - Encrypting plaintext being stored
     - Decrypting passwords being sent back to computer
     - Storage interfacing
+- Still a work in progress
 ## lcd
 - Code used to drive an external lcd display for debugging purposes
 ## rpicode
@@ -12,3 +13,6 @@
 ## sockets
 - Socket prototyping for more efficient password accessing
 ## UserInterface
+
+# Current progress
+- 
