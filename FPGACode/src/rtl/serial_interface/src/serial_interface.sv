@@ -8,7 +8,8 @@ module serial_interface(
 
     output tx_uart,
     input [7:0] tx_byte,
-    input tx_valid
+    input tx_valid,
+    output tx_ready
 );
 
     UART_RX #(
@@ -28,7 +29,8 @@ module serial_interface(
         .rst_n(rst_n),
         .tx_byte(tx_byte),
         .tx_valid(tx_valid),
-        .tx_uart(tx_uart)
+        .tx_uart(tx_uart),
+        .tx_ready(tx_ready)
     );
 
 endmodule
