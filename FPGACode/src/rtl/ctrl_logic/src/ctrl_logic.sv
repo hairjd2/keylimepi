@@ -12,15 +12,25 @@ parameter DATA_WIDTH = 128
     // UART TX data
     output logic [7:0] tx_data,
     output logic tx_valid,
-    input tx_ready
+    input tx_ready,
+
+    // Memory interface // TODO: This will change once I can start testing with the actual flash chip
+    output logic [0:0] we,
+    output logic [11:0] addr,
+    output logic [511:0] dout,
+    input [511:0] din,
+    output enb
 );
     
-    enum {init, valid_pw, bad_pw, idle, unk_cmd, stor_pw, op_res, get_pw} next_state, curr_state;
+    enum {init, valid_pw, bad_pw, idle, unk_cmd, stor_pw, op_res, get_pw, set_pw, tx_mem_data, wr_mem_data} next_state, curr_state;
     enum {short_read, long_read} rd_cmd;
     enum {short_write, long_write} wr_cmd;
 
-    logic [1:0] byte_counter;
-    logic [1:0] byte_counter_d;
+    logic [5:0] byte_counter;
+    logic [5:0] byte_counter_d;
+
+    // assign we = 0; // TODO: Just testing reads right now
+    // assign dout = 32'h61626364;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
@@ -34,32 +44,72 @@ parameter DATA_WIDTH = 128
             rx_ready <= 1;
             case (curr_state)
                 idle: begin
-                    if(rx_data == 8'h61 && rx_valid) // Looking for a
-                        curr_state <= get_pw; // TODO: Testing for now
+                    tx_valid <= 0;
+                    we <= 0;
+
+                    // Looking for the MSb and LSb to be a 1 (meaning a pw read)
+                    if(rx_valid)
+                        if(rx_data[7] && rx_data[0])
+                            curr_state <= get_pw; // TODO: Testing for now
+                        else if(!rx_data[7] && rx_data[0])
+                            curr_state <= set_pw;
                     else
                         curr_state <= idle;
-                    byte_counter <= 2'b00;
+                    byte_counter <= 0;
                 end
                 get_pw: begin
-                    curr_state <= get_pw;
+                    tx_valid <= 0;
+                    byte_counter <= 0;
+                    if(rx_valid) begin
+                        addr[7:0] <= rx_data;
+                        curr_state <= tx_mem_data;
+                    end
+                end
+                set_pw: begin
+                    tx_valid <= 0;
+                    byte_counter <= 0;
+                    if(rx_valid) begin
+                        we <= 1;
+                        addr[7:0] <= rx_data; // TODO: Make logic to make this an offset
+                        curr_state <= wr_mem_data;
+                        if(rx_data == 0)
+                            dout <= 512'h4675636b;
+                        else
+                            dout <= 512'h59656574;
+                    end
+                end
+                wr_mem_data: begin
+                    next_state <= wr_mem_data;
                     byte_counter <= byte_counter + 1;
-                    if(byte_counter == 2'b00) begin
-                        tx_data <= 8'h61; // output a
+                    we <= 0;
+                    if(byte_counter == 6'b000000) begin
+                        addr <= 0;
+                        tx_data <= 8'h65; // output d
                         tx_valid <= 1;
-                        curr_state <= get_pw;
-                    end else if(byte_counter == 2'b01) begin
-                        tx_data <= 8'h62; // output b
+                        curr_state <= wr_mem_data;
+                    end else if(byte_counter == 6'b000001) begin
+                        we <= 0;
+                        tx_data <= 8'h6e; // output o
                         tx_valid <= 1;
-                        curr_state <= get_pw;
-                    end else if(byte_counter == 2'b10) begin
-                        tx_data <= 8'h63; // output c
+                        curr_state <= wr_mem_data;
+                    end else if(byte_counter == 6'b000010) begin
+                        tx_data <= 8'h6f; // output n
                         tx_valid <= 1;
-                        curr_state <= get_pw;
-                    end else if(byte_counter == 2'b11) begin
-                        tx_data <= 8'h64; // output d
+                        curr_state <= wr_mem_data;
+                    end else if(byte_counter == 6'b000011) begin
+                        tx_data <= 8'h44; // output e
                         tx_valid <= 1;
                         curr_state <= idle;
                     end
+                end
+                tx_mem_data: begin
+                    byte_counter <= byte_counter + 1;
+                    tx_data <= din[byte_counter*8 +: 8];
+                    tx_valid <= 1;
+                    if(byte_counter == 6'h3F)
+                        curr_state <= idle;
+                    else
+                        curr_state <= tx_mem_data;
                 end
                 default: curr_state <= idle;
             endcase
@@ -98,28 +148,7 @@ parameter DATA_WIDTH = 128
     //         // Gets password from user
     //         // Need a way to id the passwords to know how to retrieve them from
     //         // storage
-    //         get_pw: begin
-    //             next_state = get_pw;
-    //             // if(tx_ready) begin
-    //             byte_counter_d = byte_counter + 1;
-    //             if(byte_counter == 2'b00) begin
-    //                 tx_data = 8'h61; // output a
-    //                 tx_valid = 1;
-    //                 next_state = get_pw;
-    //             end else if(byte_counter == 2'b01) begin
-    //                 tx_data = 8'h62; // output b
-    //                 tx_valid = 1;
-    //                 next_state = get_pw;
-    //             end else if(byte_counter == 2'b10) begin
-    //                 tx_data = 8'h63; // output c
-    //                 tx_valid = 1;
-    //                 next_state = get_pw;
-    //             end else if(byte_counter == 2'b11) begin
-    //                 tx_data = 8'h64; // output d
-    //                 tx_valid = 1;
-    //                 next_state = idle;
-    //             end
-    //         end
+    //         get_pw:
     //         // Send over the requested password and whatever meta data needed
     //         op_res: next_state = init;
     //         // Send the result of the ran command

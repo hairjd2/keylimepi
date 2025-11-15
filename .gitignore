@@ -23,12 +23,26 @@
 !FPGACode/src/rtl/aes_cipher/sim/
 !FPGACode/src/rtl/aes_cipher/sim/*.sv
 
+!FPGACode/src/rtl/AXI2SPI
+!FPGACode/src/rtl/AXI2SPI/README.md
+!FPGACode/src/rtl/AXI2SPI/src/
+!FPGACode/src/rtl/AXI2SPI/src/*.sv
+!FPGACode/src/rtl/AXI2SPI/sim/
+!FPGACode/src/rtl/AXI2SPI/sim/*.sv
+
 !FPGACode/src/rtl/ctrl_logic
 !FPGACode/src/rtl/ctrl_logic/README.md
 !FPGACode/src/rtl/ctrl_logic/src/
 !FPGACode/src/rtl/ctrl_logic/src/*.sv
 !FPGACode/src/rtl/ctrl_logic/sim/
 !FPGACode/src/rtl/ctrl_logic/sim/*.sv
+
+!FPGACode/src/rtl/keylimepi_fpga
+!FPGACode/src/rtl/keylimepi_fpga/README.md
+!FPGACode/src/rtl/keylimepi_fpga/src/
+!FPGACode/src/rtl/keylimepi_fpga/src/*.sv
+!FPGACode/src/rtl/keylimepi_fpga/sim/
+!FPGACode/src/rtl/keylimepi_fpga/sim/*.sv
 
 !FPGACode/src/rtl/rv_fifo
 !FPGACode/src/rtl/rv_fifo/README.md
@@ -43,13 +57,6 @@
 !FPGACode/src/rtl/serial_interface/src/*.sv
 !FPGACode/src/rtl/serial_interface/sim/
 !FPGACode/src/rtl/serial_interface/sim/*.sv
-
-!FPGACode/src/rtl/keylimepi_fpga
-!FPGACode/src/rtl/keylimepi_fpga/README.md
-!FPGACode/src/rtl/keylimepi_fpga/src/
-!FPGACode/src/rtl/keylimepi_fpga/src/*.sv
-!FPGACode/src/rtl/keylimepi_fpga/sim/
-!FPGACode/src/rtl/keylimepi_fpga/sim/*.sv
 
 !lcd/
 !lcd/*

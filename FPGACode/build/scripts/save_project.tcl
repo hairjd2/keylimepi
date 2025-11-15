@@ -1,6 +1,6 @@
 open_project ../keylimepi_fpga.xpr
 
-set_property AUTO_INCREMENTAL 0 [get_runs synth*]
+set_property AUTO_INCREMENTAL_CHECKPOINT 0 [get_runs synth*]
 set_property -name {write_incremental_synth_checkpoint} -value {False} -objects [get_runs synth*]
 
 set origin_dir_loc .

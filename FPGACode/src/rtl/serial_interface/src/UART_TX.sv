@@ -45,7 +45,7 @@ module UART_TX
 			case(curr_state)
 				idle: begin
 					// Set the registers to their initial values (transmit a 1) to cause a falling edge next state
-					tx_ready_q <= 0;
+					tx_ready_q <= 1;
 					tx_uart_q <= 1;
 					tx_done_q <= 0;
 					clk_counter <= 0;
@@ -55,6 +55,7 @@ module UART_TX
 					if(tx_valid) begin
 						curr_data <= tx_byte;
 						curr_state <= start_bit;
+						tx_ready_q <= 0;
 					end else begin
 						curr_state <= idle;
 					end

@@ -1,8 +1,14 @@
 module keylimepi_fpga_top (
     input clk,
     input rst,
+    
     input uart_rx,
-    output uart_tx
+    output uart_tx,
+
+    output CSn,
+    output MOSI,
+    input MISO,
+    output SCK
 );
 
     logic [7:0] rx_byte;
@@ -19,6 +25,135 @@ module keylimepi_fpga_top (
     logic tx_fifo_val;
     logic tx_fifo_rdy;
 
+    // RAM Port A (CMD CTRL)
+    logic [0:0] wea;
+    logic [11:0] addra;
+    logic [511:0] dina;
+    logic [511:0] douta;
+
+    // RAM Port B (MEM CTRL)
+    logic [0:0] web;
+    logic [11:0] addrb;
+    logic [511:0] dinb;
+    logic [511:0] doutb;
+    logic enb;
+
+    logic [23:0] araddr;
+    logic arvalid;
+    logic arready;
+
+    // AXI-Lite read data
+    logic [511:0] rdata;
+    logic [1:0] rresp;
+    logic rvalid;
+    logic rready; 
+
+    // AXI-Lite write address
+    logic [511:0] awaddr;
+    logic awvalid;
+    logic awready;
+
+    // AXI-Lite write 
+    logic [511:0] wdata;
+    logic wvalid;
+    logic wready;
+
+    // AXI-Lite write response
+    logic [1:0] bresp;
+    logic bvalid;
+    logic bready;
+
+    AXI2SPI #(
+        .DATA_WIDTH(512),
+        .ADDR_WIDTH(32)
+    ) u_AXI2SPI (
+        .clk(clk),
+        .rst_n(~rst),
+
+        // AXI-Lite read address
+        .araddr(araddr),
+        .arvalid(arvalid),
+        .arready(arready),
+
+        // AXI-Lite read data
+        .rdata(rdata),
+        .rresp(rresp),
+        .rvalid(rvalid),
+        .rready(rready), 
+
+        // AXI-Lite write address
+        .awaddr(awaddr),
+        .awvalid(awvalid),
+        .awready(awready),
+
+        // AXI-Lite write 
+        .wdata(wdata),
+        .wvalid(wvalid),
+        .wready(wready),
+
+        // AXI-Lite write response
+        .bresp(bresp),
+        .bvalid(bvalid),
+        .bready(bready),
+
+        // SPI interface
+        .CSn(CSn),
+        .MOSI(MOSI),
+        .MISO(MISO),
+        .SCK(SCK)
+    );
+
+//    mem_ctrl mem_ctrl (
+//        .clk(clk),
+//        .rst_n(~rst),
+
+//        // AXI-Lite read address
+//        .araddr(araddr),
+//        .arvalid(arvalid),
+//        .arready(arready),
+
+//        // AXI-Lite read data
+//        .rdata(rdata),
+//        .rresp(rresp),
+//        .rvalid(rvalid),
+//        .rready(rready), 
+
+//        // AXI-Lite write address
+//        .awaddr(awaddr),
+//        .awvalid(awvalid),
+//        .awready(awready),
+
+//        // AXI-Lite write 
+//        .wdata(wdata),
+//        .wvalid(wvalid),
+//        .wready(wready),
+
+//        // AXI-Lite write response
+//        .bresp(bresp),
+//        .bvalid(bvalid),
+//        .bready(bready),
+
+//        .we(web),
+//        .addr(addrb),
+//        .din(dinb),
+//        .dout(doutb)
+//    );
+
+    pw_ram u_pw_ram (
+        .clka(clk),
+        .wea(wea),
+        .addra(addra),
+        .dina(douta), // Data out of the control logic TODO: change naming
+        .douta(dina)
+
+        // .clkb(clk),
+        // .web(web),
+        // .addrb(addrb),
+        // .dinb(doutb), // Data out of the control logic TODO: change naming
+        // .doutb(dinb),
+        // .enb(0)
+    );
+
     ctrl_logic #(
   	    .DATA_WIDTH(8)
     ) u_ctrl_logic (
@@ -31,9 +166,16 @@ module keylimepi_fpga_top (
 
         .tx_data(tx_fifo_in),
         .tx_valid(tx_fifo_val),
-        .tx_ready(tx_fifo_rdy)
+        .tx_ready(tx_fifo_rdy),
+
+        .we(wea),
+        .addr(addra),
+        .din(dina),
+        .dout(douta),
+        .enb(enb)
     );
 
+    // Will need error state to transmit message saying this fifo is full
     rv_fifo #(
   	    .DATA_WIDTH(8),
   	    .FIFO_DEPTH(512)
@@ -53,17 +195,6 @@ module keylimepi_fpga_top (
         .empty(),
         .full()
     );
-
-    // axis_data_fifo_0 tx_fifo (
-    //     .s_axis_aresetn(~rst),  // input wire s_axis_aresetn
-    //     .s_axis_aclk(clk),        // input wire s_axis_aclk
-    //     .s_axis_tvalid(tx_fifo_val),    // input wire s_axis_tvalid
-    //     .s_axis_tready(tx_fifo_rdy),    // output wire s_axis_tready
-    //     .s_axis_tdata(tx_fifo_in),      // input wire [7 : 0] s_axis_tdata
-    //     .m_axis_tvalid(tx_valid),    // output wire m_axis_tvalid
-    //     .m_axis_tready(tx_ready),    // input wire m_axis_tready
-    //     .m_axis_tdata(tx_byte)      // output wire [7 : 0] m_axis_tdata
-    // );
 
     rv_fifo #(
   	    .DATA_WIDTH(8),
@@ -85,7 +216,7 @@ module keylimepi_fpga_top (
         .full()
     );
 
-    serial_interface u_serial_ifce (
+    serial_interface u_serial_if (
         .clk(clk),
         .rst_n(~rst),
         .rx_uart(uart_rx),
