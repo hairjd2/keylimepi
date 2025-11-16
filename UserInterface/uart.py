@@ -1,51 +1,16 @@
 import serial
 from nifpga import Session
 
-# def test():
-#     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
-#     # print(ser.name)
-#     str = '81'
-#     ser.write(bytes.fromhex(str))
-#     str = '01'
-#     ser.write(bytes.fromhex(str))
-#     readstr = ""
-
-#     for i in range(4):
-#         readstr = ser.read(1).decode("ascii") + readstr
-
-#     print("Reading at address 1: ", readstr)
-
-#     str = '01'
-#     ser.write(bytes.fromhex(str))
-#     readstr = ""
-
-#     for i in range(4):
-#         readstr = ser.read(1).decode("ascii") + readstr
-
-#     print("Writing 'Fuck' to address 0: ", readstr)
-
-#     str = '81'
-#     ser.write(bytes.fromhex(str))
-#     str = '00'
-#     ser.write(bytes.fromhex(str))
-#     readstr = ""
-
-#     for i in range(4):
-#         readstr = ser.read(1).decode("ascii") + readstr
-        
-#     print("Reading at address 0: ", readstr)
-#     ser.close()
-
 def read():
     address = input("What address would you like read from (in hex)?: ")
     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
-    str = '81'
+    str = '83'
     ser.write(bytes.fromhex(str))
     str = address
     ser.write(bytes.fromhex(str))
     readstr = ""
 
-    for i in range(4):
+    for i in range(64):
         readstr = ser.read(1).decode("ascii") + readstr
 
     print("Reading at address ", address, ": ", readstr)
@@ -55,13 +20,17 @@ def write():
     address = input("What address would you like to write to (in hex)?: ")
     data = input("What would you like to write: ")
     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
-    str = '01'
+    str = '03'
     ser.write(bytes.fromhex(str))
     str = address
     ser.write(bytes.fromhex(str))
+    for i in range(64-len(data)):
+        ser.write(bytes.fromhex('00'))
+    str = data.encode("ascii")
+    ser.write(str)
     readstr = ""
 
-    for i in range(64):
+    for i in range(4):
         readstr = ser.read(1).decode("ascii") + readstr
 
     print("Writing ", data, " to address ", address, ": ", readstr)

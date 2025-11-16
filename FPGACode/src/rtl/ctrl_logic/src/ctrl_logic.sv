@@ -22,12 +22,15 @@ parameter DATA_WIDTH = 128
     output enb
 );
     
-    enum {init, valid_pw, bad_pw, idle, unk_cmd, stor_pw, op_res, get_pw, set_pw, tx_mem_data, wr_mem_data} next_state, curr_state;
+    enum {init, valid_pw, bad_pw, idle, unk_cmd, stor_pw, op_res, get_pw, set_pw, tx_mem_data, wr_mem_data, wait_for_address, load_data} next_state, curr_state;
     enum {short_read, long_read} rd_cmd;
     enum {short_write, long_write} wr_cmd;
 
     logic [5:0] byte_counter;
     logic [5:0] byte_counter_d;
+
+    logic [511:0] write_reg;
+    logic [1:0] data_type;
 
     // assign we = 0; // TODO: Just testing reads right now
     // assign dout = 32'h61626364;
@@ -36,22 +39,27 @@ parameter DATA_WIDTH = 128
         if(!rst_n) begin
             curr_state <= idle;
             byte_counter <= '0;
+            write_reg <= 0;
+            data_type <= 0;
         end else begin
             curr_state <= curr_state;
             byte_counter <= byte_counter;
             tx_data <= '0;
             tx_valid <= 0;
             rx_ready <= 1;
+            write_reg <= write_reg;
+            data_type <= data_type;
             case (curr_state)
                 idle: begin
                     tx_valid <= 0;
                     we <= 0;
 
                     // Looking for the MSb and LSb to be a 1 (meaning a pw read)
-                    if(rx_valid)
-                        if(rx_data[7] && rx_data[0])
-                            curr_state <= get_pw; // TODO: Testing for now
-                        else if(!rx_data[7] && rx_data[0])
+                    if(rx_valid == 1)
+                        data_type <= rx_data[1:0];
+                        if(rx_data[7] && rx_valid)
+                            curr_state <= get_pw; // TODO: Change state name
+                        else if(!rx_data[7] && rx_valid)
                             curr_state <= set_pw;
                     else
                         curr_state <= idle;
@@ -59,27 +67,56 @@ parameter DATA_WIDTH = 128
                 end
                 get_pw: begin
                     tx_valid <= 0;
-                    byte_counter <= 0;
+                    byte_counter <= 6'h00;
                     if(rx_valid) begin
-                        addr[7:0] <= rx_data;
-                        curr_state <= tx_mem_data;
+                        addr <= {2'b00, rx_data, data_type};
+                        curr_state <= wait_for_address;
                     end
+                end
+                wait_for_address: begin
+                    byte_counter <= byte_counter + 1;
+                    if(byte_counter == 6'h01) begin
+                        curr_state <= tx_mem_data;
+                        byte_counter <= 6'h00;
+                    end
+                end
+                tx_mem_data: begin
+                    byte_counter <= byte_counter + 1;
+                    tx_data <= din[byte_counter*8 +: 8];
+                    tx_valid <= 1;
+                    if(byte_counter == 6'h3F)
+                        curr_state <= idle;
+                    else
+                        curr_state <= tx_mem_data;
                 end
                 set_pw: begin
                     tx_valid <= 0;
-                    byte_counter <= 0;
+                    byte_counter <= 6'h3F;
                     if(rx_valid) begin
                         we <= 1;
-                        addr[7:0] <= rx_data; // TODO: Make logic to make this an offset
-                        curr_state <= wr_mem_data;
-                        if(rx_data == 0)
-                            dout <= 512'h4675636b;
-                        else
-                            dout <= 512'h59656574;
+                        addr <= {2'b00, rx_data, data_type}; // TODO: Make logic to make this an offset
+                        curr_state <= load_data;
+                        write_reg <= 0;
+                    end
+                end
+                load_data: begin
+                    if(rx_valid) begin
+                        write_reg[byte_counter*8 +: 8] <= rx_data;
+                        byte_counter <= byte_counter - 1;
+                        if(byte_counter == 6'h00) begin
+                            we <= 1;
+                            dout[511:8] <= write_reg[511:8];
+                            dout[7:0] <= rx_data; // TODO: There is prob a better way to do this, like making sure the ready goes low at this state so the data doesn't change
+                            curr_state <= wr_mem_data;
+                        end else begin
+                            we <= 0;
+                            dout <= 511'hz;
+                            curr_state <= load_data;
+                        end
                     end
                 end
                 wr_mem_data: begin
-                    next_state <= wr_mem_data;
+                    // next_state <= wr_mem_data;
                     byte_counter <= byte_counter + 1;
                     we <= 0;
                     if(byte_counter == 6'b000000) begin
@@ -102,58 +139,9 @@ parameter DATA_WIDTH = 128
                         curr_state <= idle;
                     end
                 end
-                tx_mem_data: begin
-                    byte_counter <= byte_counter + 1;
-                    tx_data <= din[byte_counter*8 +: 8];
-                    tx_valid <= 1;
-                    if(byte_counter == 6'h3F)
-                        curr_state <= idle;
-                    else
-                        curr_state <= tx_mem_data;
-                end
                 default: curr_state <= idle;
             endcase
         end
     end
-
-    // always_comb begin : state_machine
-    //     byte_counter_d = byte_counter;
-    //     rx_ready = '1;
-    //     tx_data = '0;
-    //     tx_valid = '0;
-    //     case (curr_state)
-    //         init: next_state = idle;
-    //         // Delay for how many cycles needed to get things sent to reg file
-    //         valid_pw: next_state = init;
-    //         // Send request for master pw (?)
-    //         // Make sure sent master password matches the one given
-    //         bad_pw: next_state = init;
-    //         // If the password does not match, send error message saying that
-    //         // Could have a counter that waits for a certain amount of time if too
-    //         // mny wrong guesses.
-    //         idle: begin
-    //         if(rx_data == 8'h61 && rx_valid) // Looking for a
-    //             next_state = get_pw; // TODO: Testing for now
-    //         else
-    //             next_state = idle;
-
-    //         // tx_data = 8'h68; // output e
-    //         // tx_valid = 1;
-    //         end
-    //         // Gets here after a successful match of the password
-    //         unk_cmd: next_state = init;
-
-    //         // Here if cmd received is unrecognized and sends an error
-    //         stor_pw: next_state = init;
-    //         // Gets password from user
-    //         // Need a way to id the passwords to know how to retrieve them from
-    //         // storage
-    //         get_pw:
-    //         // Send over the requested password and whatever meta data needed
-    //         op_res: next_state = init;
-    //         // Send the result of the ran command
-    //         default: next_state = init;
-    //     endcase
-    // end
 
 endmodule
