@@ -5,6 +5,7 @@
 !.gitignore
 
 !FPGACode
+!FPGACode/README.md
 !FPGACode/build
 !FPGACode/build/scripts/
 !FPGACode/build/scripts/*.tcl
@@ -65,9 +66,6 @@
 
 !rpicode/
 !rpicode/*.py
-
-!sockets/
-!sockets/*.py
 
 !UserInterface/
 !UserInterface/*.py
