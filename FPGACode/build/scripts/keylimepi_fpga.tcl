@@ -34,7 +34,7 @@
 #    "/home/joinhairn/code/keylimepi/FPGACode/src/rtl/rv_fifo/src/rv_fifo.sv"
 #    "/home/joinhairn/code/keylimepi/FPGACode/src/rtl/serial_interface/src/serial_interface.sv"
 #    "/home/joinhairn/code/keylimepi/FPGACode/src/rtl/keylimepi_fpga/src/keylimepi_fpga_top.sv"
-#    "/home/joinhairn/code/keylimepi/FPGACode/src/rtl/memory_ctrl/src/mem_ctrl.sv"
+#    "/home/joinhairn/code/keylimepi/FPGACode/src/rtl/mem_ctrl/src/mem_ctrl.sv"
 #    "/home/joinhairn/code/keylimepi/FPGACode/src/init_files/test.coe"
 #    "/home/joinhairn/code/keylimepi/FPGACode/src/ip/pw_ram/pw_ram.xci"
 #    "/home/joinhairn/code/keylimepi/FPGACode/src/constraints/keylimepi_fpga.xdc"
@@ -54,7 +54,7 @@ proc checkRequiredFiles { origin_dir} {
  "[file normalize "$origin_dir/../../src/rtl/rv_fifo/src/rv_fifo.sv"]"\
  "[file normalize "$origin_dir/../../src/rtl/serial_interface/src/serial_interface.sv"]"\
  "[file normalize "$origin_dir/../../src/rtl/keylimepi_fpga/src/keylimepi_fpga_top.sv"]"\
- "[file normalize "$origin_dir/../../src/rtl/memory_ctrl/src/mem_ctrl.sv"]"\
+ "[file normalize "$origin_dir/../../src/rtl/mem_ctrl/src/mem_ctrl.sv"]"\
  "[file normalize "$origin_dir/../../src/init_files/test.coe"]"\
  "[file normalize "$origin_dir/../../src/ip/pw_ram/pw_ram.xci"]"\
  "[file normalize "$origin_dir/../../src/constraints/keylimepi_fpga.xdc"]"\
@@ -196,7 +196,7 @@ set files [list \
  [file normalize "${origin_dir}/../../src/rtl/rv_fifo/src/rv_fifo.sv"] \
  [file normalize "${origin_dir}/../../src/rtl/serial_interface/src/serial_interface.sv"] \
  [file normalize "${origin_dir}/../../src/rtl/keylimepi_fpga/src/keylimepi_fpga_top.sv"] \
- [file normalize "${origin_dir}/../../src/rtl/memory_ctrl/src/mem_ctrl.sv"] \
+ [file normalize "${origin_dir}/../../src/rtl/mem_ctrl/src/mem_ctrl.sv"] \
  [file normalize "${origin_dir}/../../src/init_files/test.coe"] \
 ]
 add_files -norecurse -fileset $obj $files
@@ -237,7 +237,7 @@ set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
-set file "$origin_dir/../../src/rtl/memory_ctrl/src/mem_ctrl.sv"
+set file "$origin_dir/../../src/rtl/mem_ctrl/src/mem_ctrl.sv"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
