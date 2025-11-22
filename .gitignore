@@ -59,6 +59,13 @@
 !FPGACode/src/rtl/serial_interface/sim/
 !FPGACode/src/rtl/serial_interface/sim/*.sv
 
+!FPGACode/src/rtl/mem_ctrl
+!FPGACode/src/rtl/mem_ctrl/README.md
+!FPGACode/src/rtl/mem_ctrl/src/
+!FPGACode/src/rtl/mem_ctrl/src/*.sv
+!FPGACode/src/rtl/mem_ctrl/sim/
+!FPGACode/src/rtl/mem_ctrl/sim/*.sv
+
 !lcd/
 !lcd/*
 !lcd/scripts/
