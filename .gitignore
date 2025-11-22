@@ -16,7 +16,11 @@
 !FPGACode/src/constraints/*.xdc
 !FPGACode/src/init_files
 !FPGACode/src/init_files/*.coe
+
 !FPGACode/src/ip/
+!FPGACode/src/ip/pw_ram
+!FPGACode/src/ip/pw_ram/pw_ram.xci
+
 !FPGACode/src/rtl
 
 !FPGACode/src/rtl/aes_cipher
