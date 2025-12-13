@@ -178,7 +178,7 @@ module keylimepi_fpga_top (
     // Will need error state to transmit message saying this fifo is full
     rv_fifo #(
   	    .DATA_WIDTH(8),
-  	    .FIFO_DEPTH(512)
+  	    .FIFO_DEPTH(2048)
     ) rx_fifo (
         .clk(clk),
         .rst_n(~rst),
@@ -198,7 +198,7 @@ module keylimepi_fpga_top (
 
     rv_fifo #(
   	    .DATA_WIDTH(8),
-  	    .FIFO_DEPTH(512)
+  	    .FIFO_DEPTH(2048)
     ) tx_fifo (
         .clk(clk),
         .rst_n(~rst),

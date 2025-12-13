@@ -1,42 +1,45 @@
 # FPGA Code
-- The main product's logic will go through the FPGa
-## Design
+- Vivado 2025.1
+- Chip name: XC7S50CSGA324-1
+## Block Design
+Below is a block design of the full FPGA code and what it interacts with.
 ```mermaid
-flowchart LR
-    flash
+flowchart BT
+    computer
     subgraph keylimepi_fpga
-        direction TB
-        AXI2SPI
-        mem_ctrl
-        BRAM
-        ctrl_logic
-        rx_fifo
-        tx_fifo
         subgraph serial_if
+            direction TB
             UART_RX
             UART_TX
         end
+        rx_fifo
+        tx_fifo
+        ctrl_logic
+        BRAM
+        mem_ctrl
+        AXI2SPI
     end
-    computer
+    flash
 
     flash<--|SPI|-->AXI2SPI
     AXI2SPI<--|AXI4-lite[31:0]-->mem_ctrl<-->BRAM<-->ctrl_logic
-    ctrl_logic<--|AXIS[7:0]|-->rx_fifo & tx_fifo<--|AXIS[7:0]|-->serial_if
-    serial_if<--|UART|-->computer
+    rx_fifo--|AXIS[7:0]|-->ctrl_logic
+    ctrl_logic--|AXIS[7:0]|-->tx_fifo
+    tx_fifo--|AXIS[7:0]|-->UART_TX
+    UART_RX--|AXIS[7:0]|-->rx_fifo
+    UART_TX--|UART|-->computer
+    computer--|UART|-->UART_RX
 ```
-
-## Example
-```mermaid
-flowchart LR
-    subgraph CPU["Central Processing Unit (CPU)"]
-        direction TB
-        ArithmeticUnit["Arithmetic & Logic Unit"]
-        ControlUnit["Control Unit"]
-        MemoryUnit["Memory Unit"]
-        
-        ArithmeticUnit-->ControlUnit-->ArithmeticUnit
-        MemoryUnit-->ControlUnit-->MemoryUnit
-    end
-    InputUnit["Input Unit"]-->CPU 
-    CPU-->OutputUnit["Output Unit"]
+## How to Build
+```bash
+cd build/scripts
+# Make sure you have vivado in your environment variables
+vivado -mode batch -source keylimepi_fpga.tcl
+cd ..
+vivado keylimepi_fpga.xpr
 ```
+### If not using Vivado 2025.1
+- You do not have to upgrade, but always best
+- If not:
+  - Ignore the errors when running the build script, the project shpuld still build fine
+  - Make sure you upgrade the IP by reporting IP in the report section at the top
