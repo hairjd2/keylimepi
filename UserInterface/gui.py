@@ -6,7 +6,8 @@ from tkinter import ttk
 from tkinter.messagebox import showinfo, askokcancel
 from turtle import left, width
 from venv import create
-from ssh_wrapper import *
+# from ssh_wrapper import *
+from uart.py import *
 
 def main():
     class FailBool:
