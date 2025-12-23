@@ -38,120 +38,35 @@ module keylimepi_fpga_top (
     logic [511:0] doutb;
     logic enb;
 
-    logic [23:0] araddr;
-    logic arvalid;
-    logic arready;
-
-    // AXI-Lite read data
-    logic [511:0] rdata;
-    logic [1:0] rresp;
-    logic rvalid;
-    logic rready; 
-
-    // AXI-Lite write address
-    logic [511:0] awaddr;
-    logic awvalid;
-    logic awready;
-
-    // AXI-Lite write 
-    logic [511:0] wdata;
-    logic wvalid;
-    logic wready;
-
-    // AXI-Lite write response
-    logic [1:0] bresp;
-    logic bvalid;
-    logic bready;
-
-    AXI2SPI #(
-        .DATA_WIDTH(512),
-        .ADDR_WIDTH(32)
-    ) u_AXI2SPI (
+   mem_ctrl mem_ctrl (
         .clk(clk),
         .rst_n(~rst),
-
-        // AXI-Lite read address
-        .araddr(araddr),
-        .arvalid(arvalid),
-        .arready(arready),
-
-        // AXI-Lite read data
-        .rdata(rdata),
-        .rresp(rresp),
-        .rvalid(rvalid),
-        .rready(rready), 
-
-        // AXI-Lite write address
-        .awaddr(awaddr),
-        .awvalid(awvalid),
-        .awready(awready),
-
-        // AXI-Lite write 
-        .wdata(wdata),
-        .wvalid(wvalid),
-        .wready(wready),
-
-        // AXI-Lite write response
-        .bresp(bresp),
-        .bvalid(bvalid),
-        .bready(bready),
 
         // SPI interface
         .CSn(CSn),
         .MOSI(MOSI),
         .MISO(MISO),
-        .SCK(SCK)
-    );
+        .SCK(SCK),
 
-//    mem_ctrl mem_ctrl (
-//        .clk(clk),
-//        .rst_n(~rst),
-
-//        // AXI-Lite read address
-//        .araddr(araddr),
-//        .arvalid(arvalid),
-//        .arready(arready),
-
-//        // AXI-Lite read data
-//        .rdata(rdata),
-//        .rresp(rresp),
-//        .rvalid(rvalid),
-//        .rready(rready), 
-
-//        // AXI-Lite write address
-//        .awaddr(awaddr),
-//        .awvalid(awvalid),
-//        .awready(awready),
-
-//        // AXI-Lite write 
-//        .wdata(wdata),
-//        .wvalid(wvalid),
-//        .wready(wready),
-
-//        // AXI-Lite write response
-//        .bresp(bresp),
-//        .bvalid(bvalid),
-//        .bready(bready),
-
-//        .we(web),
-//        .addr(addrb),
-//        .din(dinb),
-//        .dout(doutb)
-//    );
+        .we(web),
+        .addr(addrb),
+        .din(dinb),
+        .dout(doutb)
+   );
 
     pw_ram u_pw_ram (
         .clka(clk),
         .wea(wea),
         .addra(addra),
         .dina(douta), // Data out of the control logic TODO: change naming
-        .douta(dina)
+        .douta(dina),
 
-        // .clkb(clk),
-        // .web(web),
-        // .addrb(addrb),
-        // .dinb(doutb), // Data out of the control logic TODO: change naming
-        // .doutb(dinb),
-        // .enb(0)
+        .clkb(clk),
+        .web(web),
+        .addrb(addrb),
+        .dinb(doutb), // Data out of the control logic TODO: change naming
+        .doutb(dinb),
+        .enb(0)
     );
 
     ctrl_logic #(

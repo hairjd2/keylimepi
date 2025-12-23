@@ -1,5 +1,5 @@
 # Keylime Pi
-2FA token for logging into applications, as well as a password manager. 
+Password manager and 2FA token on an FPGA.
 ## History
 This project started off as a hackathon project (which we won first place) that my friends and I worked on. It revolved around using a Raspberry pi that would connect through usb. The client computer would start an automated ssh session with the raspberry pi and called python scripts on it. As you can imagine, this was very inefficient, as it would take awhile to wait for any reads and writes.
 
@@ -13,28 +13,39 @@ In terms of storage, the domain names, usernames, and passwords will all be stor
 
 Something I still need to design is how to boot the FPGA. My preliminary thought is to have the user store the bit file with their application, and have the application boot the FPGA. That way any updates could also be an update of the bit file to address any security concerns. I still need to figure out a way to boot the bit file on the FPGA without needing to use vivado.
 ## Repository Layout
-### FPGACode
+### keylimepi_fpga
 - HDL implementation that includes modules for:
     - Encrypting plaintext being stored
     - Decrypting passwords being sent back to computer
     - Storage interfacing
 - Still a work in progress
-### lcd
+### keylimepi_ui
+- Rust application that will provide a gui and write custom commands to interact with the FPGA.
+- Will be the same premise as the python code in legacy but memory safe and much faster.
+- main.rs
+  - Main rust file that will mainly call the other files' functions to interact with the user.
+- uart.rs
+  - Performs the uart operations for the application
+  - Will follow the same premise as uart.py in the legacy code.
+### Legacy
+- This code is now considered legacy and how the project has started. 
+#### lcd
 - Code used to drive an external lcd display for debugging purposes
-### rpicode (Legacy)
+#### rpicode
 - The code that sits on the raspberry pi storing the passwords
 - Will probably be removed soon
-### UserInterface
+#### UserInterface
 - gui.py
   - Made during Hackathon
   - Uses tkinter to create a gui in python
   - Calls ssh_wrapper.py functions (as of now, soon to change)
 - ssh_wrapper.py
   - Legacy code
-  - Created to create the ssh session on raspberry pi and call the python scripts
+  - Created to start the ssh session on raspberry pi and call the python scripts
 - uart.py
-  - Might be renamed, gives a very basic user interface to either read or write to the FPGA with my custom protocol
+  - Blueprint for the final rust application that will be created
+  - For now will be used for testing the FPGA until the rust application is finished
+- uart_debug.py
+  - Debug python script that gives bare-metal read and write operations for testing and fixing things in case the main application is broken.
 # Current progress
-- Prototype version of this made with raspberry pi during Hackathon.
-## FPGA
-- Able to now take in reads and writes, with an offset.
+- Prototype version of this made with raspberry pi during Hackathon. Upgraded to FPGA that now can store and output passwords in RAM with userinterface app.

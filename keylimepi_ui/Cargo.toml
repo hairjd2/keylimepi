@@ -1,0 +1,9 @@
+[package]
+name = "keylimepi_ui"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+byteorder = "1"
+rand = "0.8.5"
+serialport = "4.8.1"

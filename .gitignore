@@ -4,81 +4,85 @@
 !README.md
 !.gitignore
 
-!FPGACode
-!FPGACode/README.md
-!FPGACode/build
-!FPGACode/build/scripts/
-!FPGACode/build/scripts/*.tcl
-!FPGACode/build/scripts/*.sh
+!keylimepi_fpga
+!keylimepi_fpga/README.md
+!keylimepi_fpga/build
+!keylimepi_fpga/build/scripts/
+!keylimepi_fpga/build/scripts/*.tcl
+!keylimepi_fpga/build/scripts/*.sh
 
-!FPGACode/src/
-!FPGACode/src/constraints/
-!FPGACode/src/constraints/*.xdc
-!FPGACode/src/init_files
-!FPGACode/src/init_files/*.coe
+!keylimepi_fpga/src/
+!keylimepi_fpga/src/constraints/
+!keylimepi_fpga/src/constraints/*.xdc
+!keylimepi_fpga/src/init_files
+!keylimepi_fpga/src/init_files/*.coe
 
-!FPGACode/src/ip/
-!FPGACode/src/ip/pw_ram
-!FPGACode/src/ip/pw_ram/pw_ram.xci
+!keylimepi_fpga/src/ip/
+!keylimepi_fpga/src/ip/pw_ram
+!keylimepi_fpga/src/ip/pw_ram/pw_ram.xci
 
-!FPGACode/src/rtl
+!keylimepi_fpga/src/rtl
 
-!FPGACode/src/rtl/aes_cipher
-!FPGACode/src/rtl/aes_cipher/README.md
-!FPGACode/src/rtl/aes_cipher/src/
-!FPGACode/src/rtl/aes_cipher/src/*.sv
-!FPGACode/src/rtl/aes_cipher/sim/
-!FPGACode/src/rtl/aes_cipher/sim/*.sv
+!keylimepi_fpga/src/rtl/aes_cipher
+!keylimepi_fpga/src/rtl/aes_cipher/README.md
+!keylimepi_fpga/src/rtl/aes_cipher/src/
+!keylimepi_fpga/src/rtl/aes_cipher/src/*.sv
+!keylimepi_fpga/src/rtl/aes_cipher/sim/
+!keylimepi_fpga/src/rtl/aes_cipher/sim/*.sv
 
-!FPGACode/src/rtl/AXI2SPI
-!FPGACode/src/rtl/AXI2SPI/README.md
-!FPGACode/src/rtl/AXI2SPI/src/
-!FPGACode/src/rtl/AXI2SPI/src/*.sv
-!FPGACode/src/rtl/AXI2SPI/sim/
-!FPGACode/src/rtl/AXI2SPI/sim/*.sv
+!keylimepi_fpga/src/rtl/AXI2SPI
+!keylimepi_fpga/src/rtl/AXI2SPI/README.md
+!keylimepi_fpga/src/rtl/AXI2SPI/src/
+!keylimepi_fpga/src/rtl/AXI2SPI/src/*.sv
+!keylimepi_fpga/src/rtl/AXI2SPI/sim/
+!keylimepi_fpga/src/rtl/AXI2SPI/sim/*.sv
 
-!FPGACode/src/rtl/ctrl_logic
-!FPGACode/src/rtl/ctrl_logic/README.md
-!FPGACode/src/rtl/ctrl_logic/src/
-!FPGACode/src/rtl/ctrl_logic/src/*.sv
-!FPGACode/src/rtl/ctrl_logic/sim/
-!FPGACode/src/rtl/ctrl_logic/sim/*.sv
+!keylimepi_fpga/src/rtl/ctrl_logic
+!keylimepi_fpga/src/rtl/ctrl_logic/README.md
+!keylimepi_fpga/src/rtl/ctrl_logic/src/
+!keylimepi_fpga/src/rtl/ctrl_logic/src/*.sv
+!keylimepi_fpga/src/rtl/ctrl_logic/sim/
+!keylimepi_fpga/src/rtl/ctrl_logic/sim/*.sv
 
-!FPGACode/src/rtl/keylimepi_fpga
-!FPGACode/src/rtl/keylimepi_fpga/README.md
-!FPGACode/src/rtl/keylimepi_fpga/src/
-!FPGACode/src/rtl/keylimepi_fpga/src/*.sv
-!FPGACode/src/rtl/keylimepi_fpga/sim/
-!FPGACode/src/rtl/keylimepi_fpga/sim/*.sv
+!keylimepi_fpga/src/rtl/keylimepi_fpga
+!keylimepi_fpga/src/rtl/keylimepi_fpga/README.md
+!keylimepi_fpga/src/rtl/keylimepi_fpga/src/
+!keylimepi_fpga/src/rtl/keylimepi_fpga/src/*.sv
+!keylimepi_fpga/src/rtl/keylimepi_fpga/sim/
+!keylimepi_fpga/src/rtl/keylimepi_fpga/sim/*.sv
 
-!FPGACode/src/rtl/rv_fifo
-!FPGACode/src/rtl/rv_fifo/README.md
-!FPGACode/src/rtl/rv_fifo/src/
-!FPGACode/src/rtl/rv_fifo/src/*.sv
-!FPGACode/src/rtl/rv_fifo/sim/
-!FPGACode/src/rtl/rv_fifo/sim/*.sv
+!keylimepi_fpga/src/rtl/rv_fifo
+!keylimepi_fpga/src/rtl/rv_fifo/README.md
+!keylimepi_fpga/src/rtl/rv_fifo/src/
+!keylimepi_fpga/src/rtl/rv_fifo/src/*.sv
+!keylimepi_fpga/src/rtl/rv_fifo/sim/
+!keylimepi_fpga/src/rtl/rv_fifo/sim/*.sv
 
-!FPGACode/src/rtl/serial_interface
-!FPGACode/src/rtl/serial_interface/README.md
-!FPGACode/src/rtl/serial_interface/src/
-!FPGACode/src/rtl/serial_interface/src/*.sv
-!FPGACode/src/rtl/serial_interface/sim/
-!FPGACode/src/rtl/serial_interface/sim/*.sv
+!keylimepi_fpga/src/rtl/serial_interface
+!keylimepi_fpga/src/rtl/serial_interface/README.md
+!keylimepi_fpga/src/rtl/serial_interface/src/
+!keylimepi_fpga/src/rtl/serial_interface/src/*.sv
+!keylimepi_fpga/src/rtl/serial_interface/sim/
+!keylimepi_fpga/src/rtl/serial_interface/sim/*.sv
 
-!FPGACode/src/rtl/mem_ctrl
-!FPGACode/src/rtl/mem_ctrl/README.md
-!FPGACode/src/rtl/mem_ctrl/src/
-!FPGACode/src/rtl/mem_ctrl/src/*.sv
-!FPGACode/src/rtl/mem_ctrl/sim/
-!FPGACode/src/rtl/mem_ctrl/sim/*.sv
+!keylimepi_fpga/src/rtl/mem_ctrl
+!keylimepi_fpga/src/rtl/mem_ctrl/README.md
+!keylimepi_fpga/src/rtl/mem_ctrl/src/
+!keylimepi_fpga/src/rtl/mem_ctrl/src/*.sv
+!keylimepi_fpga/src/rtl/mem_ctrl/sim/
+!keylimepi_fpga/src/rtl/mem_ctrl/sim/*.sv
 
-!lcd/
-!lcd/*
-!lcd/scripts/
-!lcd/scripts/*
+!legacy
+!legacy/lcd/
+!legacy/lcd/*.py
 
-!rpicode/
-!rpicode/*.py
+!legacy/rpicode/
+!legacy/rpicode/*.py
 
-!UserInterface/
-!UserInterface/*.py
+!legacy/UserInterface/
+!legacy/UserInterface/*.py
+
+!keylimepi_ui/
+!keylimepi_ui/Cargo.toml
+!keylimepi_ui/src/
+!keylimepi_ui/src/*.rs
