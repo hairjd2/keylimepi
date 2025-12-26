@@ -3,7 +3,6 @@ use std::io;
 mod uart;
 mod gui;
 
-// Helper function to get user input integer
 fn get_num_input() -> u8 {
     // Initialize new string
     let mut input = String::new();
@@ -25,7 +24,7 @@ fn start_list_domains(path: &String, num_pw: u32) {
     // Get a vector of domain strings, then loop through and list each one
     let mut domains: Vec<String> = uart::list_domains(path, num_pw);
     println!("----------Domains----------");
-    let mut j = 1;
+    let mut j: i32 = 1;
     for domain in domains.iter_mut() {
         println!("{j}. {domain}");
         j += 1;
@@ -119,26 +118,21 @@ fn start_delete_domain(path: &String, num_pw: u32) -> u32 {
     return new_num_pw;
 }
 
-pub fn init() -> (String, u32) {
-    println!("Available ports:");
-    uart::list_ports();
-    println!("What is your Keylimepi connected to?: ");
-    let mut path: String = String::new();
-    io::stdin()
-        .read_line(&mut path)
-        .expect("Failed to read line");
+fn init() -> (String, u32) {
+    let (path, num_pw) = uart::find_path();
 
-    path = path.trim().to_string();
-
-    let num_pw = uart::get_pw_count(&path);
+    if path == "None" {
+        println!("Could not find your keylimepi, make sure its connected and that its path is showing up in /dev");
+        std::process::exit(0);
+    } else {
+        println!("Your keylimepi is at {path}");
+    }
 
     start_list_domains(&path, num_pw);
     return (path, num_pw);
 }
 
 fn main() {
-    gui::main_gui();
-    
     let mut conn_info: (String, u32) = init();
 
     conn_info.0 = String::from("/dev/ttyUSB1");

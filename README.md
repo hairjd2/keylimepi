@@ -27,6 +27,7 @@ Something I still need to design is how to boot the FPGA. My preliminary thought
 - uart.rs
   - Performs the uart operations for the application
   - Will follow the same premise as uart.py in the legacy code.
+  - Now also automatically finds the serial port of the keylimepi.
 ### Legacy
 - This code is now considered legacy and how the project has started. 
 #### lcd

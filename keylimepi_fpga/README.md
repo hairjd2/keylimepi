@@ -45,5 +45,5 @@ vivado keylimepi_fpga.xpr
 ### If not using Vivado 2025.2
 - You do not have to upgrade, but always best
 - If not:
-  - Ignore the errors when running the build script, the project shpuld still build fine
+  - Ignore the errors when running the build script, the project should still build fine
   - Make sure you upgrade the IP by reporting IP in the report section at the top
