@@ -66,11 +66,12 @@ fn start_create_domain(path: &String, num_pw: u32) -> u32 {
 
     let (new_num_pw, write_stat) = uart::create_domain(path, num_pw, domain, username, password);
 
-    if write_stat == "Done" {
+    if write_stat == "DONE" {
         print!("Successfully created new entry for your login at {domain_result}");
     } else {
-        print!("Failed to create new entry for your login at {domain_result}")
+        print!("Failed to create new entry for your login at {domain_result} with status {write_stat}")
     }
+    // println!("{write_stat}");
     return new_num_pw;
 }
 
@@ -110,10 +111,10 @@ fn start_delete_domain(path: &String, num_pw: u32) -> u32 {
 
     let (new_num_pw, write_stat) = uart::delete_domain(path, num_pw, domain);
 
-    if write_stat == "Done" {
+    if write_stat == "DONE" {
         println!("Successfully deleted domain");
     } else {
-        println!("Failed to delete domain")
+        println!("Failed to delete domain with response code: {write_stat}")
     }
     return new_num_pw;
 }
@@ -134,8 +135,6 @@ fn init() -> (String, u32) {
 
 fn main() {
     let mut conn_info: (String, u32) = init();
-
-    conn_info.0 = String::from("/dev/ttyUSB1");
 
     loop {
         println!("1. List Domains");

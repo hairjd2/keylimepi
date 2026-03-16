@@ -37,10 +37,20 @@ module keylimepi_fpga_top (
     logic [511:0] dinb;
     logic [511:0] doutb;
     logic enb;
+    
+    logic flash_sync;
+    logic [11:0] flash_sync_addr;
+    
+    logic init_sync_done;
 
-   mem_ctrl mem_ctrl (
+   pw_sync u_pw_sync (
         .clk(clk),
         .rst_n(~rst),
+        
+        .flash_sync,
+        .flash_sync_addr,
+        
+        .init_sync_done,
 
         // SPI interface
         .CSn(CSn),
@@ -48,10 +58,11 @@ module keylimepi_fpga_top (
         .MISO(MISO),
         .SCK(SCK),
 
+        // BRAM Interface
         .we(web),
         .addr(addrb),
-        .din(dinb),
-        .dout(doutb)
+        .rd_data(dinb),
+        .wr_data(doutb)
    );
 
     pw_ram u_pw_ram (

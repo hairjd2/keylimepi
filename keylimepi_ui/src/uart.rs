@@ -4,6 +4,7 @@ use std::time::Duration;
 const DOMAIN_CODE: u32 = 0;
 const USERNAME_CODE: u32 = 1;
 const PASSWORD_CODE: u32 = 2;
+const BAUD_RATE: u32 = 115_200;
 
 /// # Parameters:
 /// - path (&String ): Path to device to open the serial port
@@ -14,24 +15,41 @@ const PASSWORD_CODE: u32 = 2;
 ///   to keep track of and update
 fn get_pw_count(path: &String) -> u32 {
     // Open the port
-    let mut port = serialport::new(path, 115_200)
+    let mut port = serialport::new(path, BAUD_RATE)
         .timeout(Duration::from_millis(100))
         .open()
         .expect("Failed to open port");
 
     // Send the "read pw count" command and address 0 as filler
-    let cmd: [u8; 2] = [255, 0];
+    let cmd: [u8; 2] = [128, 0];
     port.write(&cmd).expect("Get Password command failed");
 
+    // Read length from the FPGA
+    let mut serial_buf: Vec<u8> = vec![0; 1];
+    port.read(serial_buf.as_mut_slice()).expect("Failed to receive length");
+
+    let length: u8 = serial_buf[0];
+    println!("Got Length {length}");
+
     // Read 64 bytes from the FPGA
-    let mut serial_buf: Vec<u8> = vec![0; 64];
+    serial_buf = vec![0; 64];
     port.read(serial_buf.as_mut_slice()).expect("Failed to receive number of passwords");
 
     // concatenate each byte into one 32 bit integer
-    let num_pw = ((serial_buf[3] as u32) << 24) | 
-                        ((serial_buf[2] as u32) << 16) | 
-                        ((serial_buf[1] as u32) << 8) | 
-                        (serial_buf[0] as u32);
+    let num_pw = ((serial_buf[60] as u32) << 24) | 
+                        ((serial_buf[61] as u32) << 16) | 
+                        ((serial_buf[62] as u32) << 8) | 
+                        (serial_buf[63] as u32);
+
+    serial_buf = vec![0; 4];
+    port.read(serial_buf.as_mut_slice()).expect("Failed to get status for setting data");
+
+    let write_stat = match str::from_utf8(&serial_buf) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+
+    println!("Got response from getting count: {write_stat}");
 
     return num_pw;
 }
@@ -44,14 +62,14 @@ fn get_pw_count(path: &String) -> u32 {
 ///   count
 fn set_pw_count(path: &String, num_pw: u32) -> String {
     // Open port
-    let mut port = serialport::new(path, 115_200)
+    let mut port = serialport::new(path, BAUD_RATE)
         .timeout(Duration::from_millis(100))
         .open()
         .expect("Failed to open port");
 
     // Send the "read pw count" command then send address 0 as filler
-    let cmd: [u8; 2] = [127, 0];
-    port.write(&cmd).expect("Get Password command failed");
+    let cmd: [u8; 3] = [0, 0, 1];
+    port.write(&cmd).expect("Set password count command failed");
 
     // Create empty array of 64 bytes, and fill with little endian representation of integer
     let mut output: [u8; 64] = [0; 64];
@@ -63,17 +81,17 @@ fn set_pw_count(path: &String, num_pw: u32) -> String {
     // Write final full 64 byte array
     port.write(&output).expect("Write failed!");
 
-    // Receive "Done" status and return
+    // Get response word (only expecting "Done")
     let mut serial_buf: Vec<u8> = vec![0; 4];
     port.read(serial_buf.as_mut_slice()).expect("Failed to get status for setting data");
 
+    // Convert to String
     let write_stat = match str::from_utf8(&serial_buf) {
         Ok(v) => v,
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
     };
-    
-    // Need to reverse the string (TODO: Should look into reversing the data on FPGA)
-    return write_stat.to_string().chars().rev().collect::<String>();
+
+    return write_stat.to_string();
 }
 
 /// # Parameters:
@@ -85,17 +103,28 @@ fn set_pw_count(path: &String, num_pw: u32) -> String {
 /// array, and the address as an integer and performs a read
 fn get_data(path: &String, cmd: u8, address: u8) -> String {
     // Open port
-    let mut port = serialport::new(path, 115_200)
+    let mut port = serialport::new(path, BAUD_RATE)
         .timeout(Duration::from_millis(100))
         .open()
         .expect("Failed to open port");
 
     // Send the command and address
-    let setup: [u8; 2] = [cmd, address];
+    let setup: [u8; 2] = [cmd, address+1];
     port.write(&setup).expect("Get Data command failed");
 
-    // Read the full 64 bytes
-    let mut serial_buf: Vec<u8> = vec![0; 64];
+    // Read length from the FPGA
+    let mut serial_buf: Vec<u8> = vec![0; 1];
+    port.read(serial_buf.as_mut_slice()).expect("Failed to receive length");
+
+    let length: u8 = serial_buf[0];
+    println!("Got Length {length}");
+
+    // Read 64 bytes from the FPGA
+    if cmd == 129 { // Second part of the domain also contains the lengths, which we don't want to read
+        serial_buf = vec![0; 60];
+    } else {
+        serial_buf = vec![0; 64];
+    }
     port.read(serial_buf.as_mut_slice()).expect("Failed to retreive data");
 
     // Convert vector to string
@@ -104,8 +133,17 @@ fn get_data(path: &String, cmd: u8, address: u8) -> String {
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
     };
 
-    // Return string reversed
-    return data.to_string().chars().rev().collect::<String>();
+    let mut resp_buf = vec![0; 4];
+    port.read(resp_buf.as_mut_slice()).expect("Failed to get status for setting data");
+
+    let write_stat = match str::from_utf8(&resp_buf) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+
+    println!("Got response from getting data: {write_stat}");
+
+    return data.to_string();
 }
 
 /// # Parameters:
@@ -118,21 +156,32 @@ fn get_data(path: &String, cmd: u8, address: u8) -> String {
 /// array, and the address as an integer and performs a write
 fn set_data(path: &String, cmd: u8, address: u8, data: String) -> String {
     // Open port
-    let mut port = serialport::new(path, 115_200)
+    let mut port = serialport::new(path, BAUD_RATE)
         .timeout(Duration::from_millis(100))
         .open()
         .expect("Failed to open port");
 
     // Send the command and address
-    let setup: [u8; 2] = [cmd, address];
+    let setup: [u8; 3] = [cmd, address+1, 127];
     port.write(&setup).expect("Set Data command failed");
 
-    // Write to the full 64 bytes, filling in the rest with 0
-    let mut output: [u8; 64] = [0; 64];
-    for i in 0..data.len() {
-        output[i] = data.as_bytes()[i];
+    if cmd == 1 { // Second part of the domain also contains the lengths, which we don't want to read
+        let mut output: [u8; 60] = [0; 60];
+        println!("Writing data {data} for cmd {cmd}");
+        for i in 0..data.len() {
+            output[i] = data.as_bytes()[i];
+        }
+        port.write(&output).expect("Failed to set data");
+    } else {
+        let mut output: [u8; 64] = [0; 64];
+        println!("Writing data {data} for cmd {cmd}");
+        for i in 0..data.len() {
+            output[i] = data.as_bytes()[i];
+        }
+        port.write(&output).expect("Failed to set data");
     }
-    port.write(&output).expect("Failed to set data");
+
+    // Write to the full 64 bytes, filling in the rest with 0
 
     // Get response word (only expecting "Done")
     let mut serial_buf: Vec<u8> = vec![0; 4];
@@ -144,8 +193,7 @@ fn set_data(path: &String, cmd: u8, address: u8, data: String) -> String {
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
     };
 
-    // Return reversed
-    return write_stat.to_string().chars().rev().collect::<String>();
+    return write_stat.to_string();
 }
 
 /// # Parameters:
@@ -304,14 +352,23 @@ pub fn list_domain_info(path: &String, num_pw: u32, domain: u8) -> (String, Stri
 /// Adds new password entry
 pub fn create_domain(path: &String, num_pw: u32, domain: String, username: String, password: String) -> (u32, String) {
     // Write each data type to number of passwords address (Writing to new page)
-    write(path, DOMAIN_CODE, num_pw as u8, domain);
-    write(path, USERNAME_CODE, num_pw as u8, username);
-    write(path, PASSWORD_CODE, num_pw as u8, password);
+    let mut write_stat: String;
+    write_stat = write(path, DOMAIN_CODE, num_pw as u8, domain);
+    if write_stat != "DONE" {
+        return (num_pw, format!("ERR! from writing domain: {write_stat}"));
+    }
+    write_stat = write(path, USERNAME_CODE, num_pw as u8, username);
+    if write_stat != "DONE" {
+        return (num_pw, format!("ERR! from writing username: {write_stat}"));
+    }
+    write_stat = write(path, PASSWORD_CODE, num_pw as u8, password);
+    if write_stat != "DONE" {
+        return (num_pw, format!("ERR! from writing password: {write_stat}"));
+    }
 
     // Increment number of passwords and update the keylimepi
-    let new_num_pw = num_pw + 1;
-    let write_stat: String = set_pw_count(path, new_num_pw);
-    return (new_num_pw, write_stat);
+    write_stat = set_pw_count(path, num_pw + 1);
+    return (num_pw + 1, write_stat);
 }
 
 /// # Parameters:
@@ -366,10 +423,13 @@ pub fn delete_domain(path: &String, num_pw: u32, domain: u8) -> (u32, String) {
     while curr_pw < num_pw as u8 {
         // Write the next entry into current entry
         let new_domain: String = read(path, DOMAIN_CODE, curr_pw);
+        println!("Writing previous domain {new_domain} to {curr_pw}");
         write(path, DOMAIN_CODE, curr_pw-1, new_domain);
         let new_username: String = read(path, USERNAME_CODE, curr_pw);
+        println!("Writing previous username {new_username} to {curr_pw}");
         write(path, USERNAME_CODE, curr_pw-1, new_username);
         let new_password: String = read(path, PASSWORD_CODE, curr_pw);
+        println!("Writing previous password {new_password} to {curr_pw}");
         write(path, PASSWORD_CODE, curr_pw-1, new_password);
         curr_pw += 1;
     }

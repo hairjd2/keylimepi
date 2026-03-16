@@ -65,12 +65,12 @@
 !keylimepi_fpga/src/rtl/serial_interface/sim/
 !keylimepi_fpga/src/rtl/serial_interface/sim/*.sv
 
-!keylimepi_fpga/src/rtl/mem_ctrl
-!keylimepi_fpga/src/rtl/mem_ctrl/README.md
-!keylimepi_fpga/src/rtl/mem_ctrl/src/
-!keylimepi_fpga/src/rtl/mem_ctrl/src/*.sv
-!keylimepi_fpga/src/rtl/mem_ctrl/sim/
-!keylimepi_fpga/src/rtl/mem_ctrl/sim/*.sv
+!keylimepi_fpga/src/rtl/pw_sync
+!keylimepi_fpga/src/rtl/pw_sync/README.md
+!keylimepi_fpga/src/rtl/pw_sync/src/
+!keylimepi_fpga/src/rtl/pw_sync/src/*.sv
+!keylimepi_fpga/src/rtl/pw_sync/sim/
+!keylimepi_fpga/src/rtl/pw_sync/sim/*.sv
 
 !legacy
 !legacy/lcd/
