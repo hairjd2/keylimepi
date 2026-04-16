@@ -1,3 +1,5 @@
+import keylimepi_pkg::*;
+
 module ctrl_logic #(
 parameter DATA_WIDTH = 128
 )(
@@ -17,194 +19,200 @@ parameter DATA_WIDTH = 128
     // Memory interface
     output logic [0:0] we,
     output logic [11:0] addr,
-    output logic [511:0] dout,
-    input [511:0] din,
-    output enb
+    output logic [511:0] wr_data,
+    input [511:0] rd_data,
+    output logic enb
 );
-    localparam DONE_RESP = 32'h444f4e45;
-
+    
     // state machine
-    enum {init, wait_client, init_resp, wait_pw, check_pw, output_resp, idle, get_len, wait_for_len, get_data, wait_for_data, tx_mem_data, set_len, load_len, set_data, load_data} curr_state;
+    enum {init, wait_client, init_resp, wait_pw, check_pw, output_resp, idle, get_addr, wait_for_len, wait_for_len2, send_len, send_data, get_len, get_data} curr_state;
 
+    logic op_type_d, op_type_q;
     logic [5:0] byte_counter;
-    logic [5:0] byte_counter_d;
-
-    logic [511:0] write_reg;
-
-    logic [31:0] resp_code;
-
-    logic [11:0] addr_reg;
+    logic [511:0] wr_data_d, wr_data_q;
+    logic [31:0] resp_code_d, resp_code_q;
+    logic [11:0] addr_d, addr_q;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
-            curr_state <= idle;
-            byte_counter <= '0;
-            write_reg <= 0;
-            resp_code <= 0;
-            addr_reg <= 0;
+            curr_state <= init;
+            byte_counter <= 0;
         end else begin
-            // Avoiding inferring latches
             curr_state <= curr_state;
             byte_counter <= byte_counter;
-            tx_data <= '0;
-            tx_valid <= 0;
-            rx_ready <= 1;
-            write_reg <= write_reg;
-            resp_code <= resp_code;
-            addr_reg <= addr_reg;
-
             case (curr_state)
                 init: begin
-                    
-                end
-                idle: begin // Sits here until the FPGA receives a valid command
-                    tx_valid <= 0;
-                    we <= 0;
-                    addr_reg <= 0;
-
-                    // Looking for the MSb and LSb to be a 1 (meaning a pw read)
-                    if(rx_valid) begin
-                        addr_reg[11:10] <= rx_data[3:2];
-                        addr_reg[1:0] <= rx_data[1:0];
-
-                        if(rx_data[7]) begin // The read bit is asserted
-                            curr_state <= get_len;
-                        end else // Write bit is asserted (active-low)
-                            curr_state <= set_len;
-                    end else begin
-                        curr_state <= idle;
-                    end
+                    curr_state <= idle;
                     byte_counter <= 0;
                 end
-                get_len: begin
-                    tx_valid <= 0;
-                    byte_counter <= 6'h00;
+                idle: begin
+                    if(rx_valid)
+                        curr_state <= get_addr;
+                end
+                get_addr: begin
                     if(rx_valid) begin
-                        addr <= {addr_reg[11:10], rx_data, 2'b01};
-                        addr_reg[9:2] <= rx_data;
-                        curr_state <= wait_for_len;
+                        if(op_type_q)
+                            curr_state <= wait_for_len;
+                        else
+                            curr_state <= get_len;
                     end
                 end
                 wait_for_len: begin
-                    byte_counter <= byte_counter + 1;
-                    if(byte_counter == 6'h01) begin
-                        curr_state <= get_data;
-                        case(addr_reg[1:0])
-                            2'b00: tx_data <= din[487:480];
-                            2'b01: tx_data <= din[495:488];
-                            2'b10: tx_data <= din[503:496];
-                            2'b11: tx_data <= din[511:504];
-                        endcase
-                        tx_valid <= 1;
-                    end
+                    curr_state <= wait_for_len2;
                 end
-                // Retrieve data
-                get_data: begin
-                    tx_valid <= 0;
-                    byte_counter <= 6'h00;
-                    // data types: 0 and 1: domain name; 2: username; 3: password
-                    addr <= addr_reg; // Forcing the address to next line since the count and other metadata is at 0th address
-                    curr_state <= wait_for_data; // Wait for the ram to output data at address
+                wait_for_len2: begin
+                    curr_state <= send_len;
                 end
-                // Wait two cycles for ram to output data
-                wait_for_data: begin
-                    byte_counter <= byte_counter + 1;
-                    // After two cycles, can start outputting data at address set
-                    if(byte_counter == 6'h01) begin 
-                        curr_state <= tx_mem_data;
-                        if(addr_reg[1:0] == 2'b01)
-                            byte_counter <= 6'h3b;
-                        else
-                            byte_counter <= 6'h3f;
-                    end
+                send_len: begin
+                    curr_state <= send_data;
+                    byte_counter <= '1;
                 end
-                // Transmit data from ram
-                tx_mem_data: begin
-                    // Write every byte of the 64 bytes in ram to the buffer
-                    byte_counter <= byte_counter - 1;
-                    tx_data <= din[byte_counter*8 +: 8];
-                    tx_valid <= 1;
-                    resp_code <= DONE_RESP;
-                    // TODO: Check that the fifo is ready to receive data
-                    if(byte_counter == 6'h00) begin // After 64 bytes are written, return to idle
+                send_data: begin
+                    if(byte_counter == 0) begin
                         curr_state <= output_resp;
-                        byte_counter <= 6'b000011;
-                    end else
-                        curr_state <= tx_mem_data;
-                end
-                set_len: begin
-                    tx_valid <= 0;
-                    if(rx_valid) begin
-                        addr_reg[9:2] <= rx_data;
-                        addr <= {addr[11:10], rx_data, 2'b01};
-                        curr_state <= load_len;
+                        byte_counter <= 6'h03;
+                    end else begin
+                        byte_counter <= byte_counter - 1;
+                        curr_state <= send_data;
                     end
                 end
-                load_len: begin
-                    if(rx_valid) begin
-                        case(addr_reg[1:0])
-                            2'b00: dout[487:480] <= rx_data;
-                            2'b01: dout[495:488] <= rx_data;
-                            2'b10: dout[503:496] <= rx_data;
-                            2'b11: dout[511:504] <= rx_data;
-                        endcase
-                        we <= 1;
-                        curr_state <= set_data;
-                    end
+                get_len: begin
+                    curr_state <= get_data;
+                    byte_counter <= '1;
                 end
-                // Set data at given address
-                set_data: begin
-                    tx_valid <= 0;
-                    if(addr_reg[1:0] == 2'b01)
-                        byte_counter <= 6'h3a;
-                    else
-                        byte_counter <= 6'h3e;
+                get_data: begin
                     if(rx_valid) begin
-                        we <= 1;
-                        // data types: 0 and 1: domain name; 2: username; 3: password
-                        addr <= addr_reg; // Use address and offset (data type) given
-                        curr_state <= load_data;
-                        write_reg <= 0;
-                        write_reg[511:504] <= rx_data;
-                    end
-                end
-                // Write received data to RAM
-                load_data: begin
-                    if(rx_valid) begin
-                        // For each valid piece of received data, write it to ram
-                        write_reg[byte_counter*8 +: 8] <= rx_data;
-                        byte_counter <= byte_counter - 1; 
-                        if(byte_counter == 6'h00) begin // Once at 0, can transmit done to 
-                            we <= 1;
-                            dout[511:8] <= write_reg[511:8];
-                            dout[7:0] <= rx_data; // TODO: There is prob a better way to do this, like making sure the ready goes low at this state so the data doesn't change
+                        if(byte_counter == 0) begin
                             curr_state <= output_resp;
-                            byte_counter <= 6'b000011;
-                            resp_code <= DONE_RESP;
+                            byte_counter <= 6'h03;
                         end else begin
-                            we <= 0;
-                            dout <= 511'hz;
-                            curr_state <= load_data;
+                            byte_counter <= byte_counter - 1;
+                            curr_state <= get_data;
                         end
                     end
                 end
-                // Finished writing data to ram, output that it is done
                 output_resp: begin
-                    byte_counter <= byte_counter - 1;
-                    we <= 0;
-                    addr <= 0;
-                    tx_valid <= 1;
-                    tx_data <= resp_code[byte_counter*8 +: 8];
-
-                    if(byte_counter == 0)
+                    if(byte_counter == 0) begin
                         curr_state <= idle;
-                    else
+                        byte_counter <= 6'h00;
+                    end else begin
+                        byte_counter <= byte_counter - 1;
                         curr_state <= output_resp;
+                    end
                 end
-
-                default: curr_state <= idle;
+                default: begin
+                    curr_state <= idle;
+                end
             endcase
         end
     end
 
+    always_comb begin
+
+        // wr_data_d = wr_data_q;
+        // if(curr_state == get_data)
+        //     wr_data_d[(byte_counter+1)*8+1 -: 8] = rx_data;
+    end
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin
+            op_type_q <= '0;
+            wr_data_q <= '0;
+            resp_code_q <= '0;
+            addr_q <= '0;
+        end else begin
+            op_type_q <= op_type_d;
+            wr_data_q <= wr_data_d;
+            resp_code_q <= DONE_RESP; // TODO: Change this once I start looking for errors
+            addr_q <= addr_d;
+        end
+    end
+
+    always_comb begin
+        rx_ready = rx_valid;
+
+        if(curr_state == send_len) begin
+            case(addr_q[1:0])
+                2'b00: tx_data = rd_data[487:480];
+                2'b01: tx_data = rd_data[495:488];
+                2'b10: tx_data = rd_data[503:496];
+                2'b11: tx_data = rd_data[511:504];
+            endcase
+            tx_valid = 1;
+        end else if(curr_state == send_data) begin
+            tx_data = rd_data[(byte_counter+1)*8-1 -: 8];
+            tx_valid = 1;
+        end else if(curr_state == output_resp) begin
+            tx_data = resp_code_q[(byte_counter+1)*8-1 -: 8];
+            tx_valid = 1;
+        end else begin
+            tx_data = 0;
+            tx_valid = 0;
+        end
+
+        // if(curr_state == wait_for_len || curr_state == get_len) begin
+        //     addr = {addr_q[11:2], 2'b01};
+        // end else begin
+        //     addr = addr_q;
+        // end
+
+        if(curr_state == idle)
+            op_type_d = rx_data[7];
+        else
+            op_type_d = op_type_q;
+
+        if(curr_state == get_len || curr_state == wait_for_len)
+            addr = {addr_q[11:2], 2'b00};
+        else
+            addr = addr_q;
+
+        if(curr_state == idle)
+            addr_d = {rx_data[3:0], addr_q[7:0]};
+        else if(curr_state == get_addr)
+            addr_d = {addr_q[11:8], rx_data};
+        else
+            addr_q = addr_q;
+
+        if(curr_state == get_len) begin
+            case(addr_q[1:0])
+                2'b00: wr_data = {rd_data[511:488], rx_data, rd_data[479:0]};
+                2'b01: wr_data = {rd_data[511:496], rx_data, rd_data[487:0]};
+                2'b10: wr_data = {rd_data[511:504], rx_data, rd_data[495:0]};
+                2'b11: wr_data = {rx_data, rd_data[503:0]};
+            endcase
+        end else begin
+            wr_data = wr_data_q;
+        end
+
+        if(curr_state == get_data) begin
+            wr_data_d = {wr_data_q[503:0], rx_data};
+        end else if(curr_state == idle) begin
+            wr_data_d = '0;
+        end else begin
+            wr_data_d = wr_data_q;
+        end
+
+        if((curr_state == get_len && rx_valid == 1) || (curr_state == output_resp && op_type_q == 0))
+            we = 1;
+        else
+            we = 0;
+
+        // if(curr_state == get_len) begin
+        //     case(addr_q[1:0])
+        //         2'b00: wr_data = {rd_data[511:488], rx_data, rd_data[479:0]};
+        //         2'b01: wr_data = {rd_data[511:496], rx_data, rd_data[487:0]};
+        //         2'b10: wr_data = {rd_data[511:504], rx_data, rd_data[495:0]};
+        //         2'b11: wr_data = {rx_data, rd_data[503:0]};
+        //     endcase
+        //     we = 1;
+        // end else if(curr_state == get_data && byte_counter == 0) begin
+        //     wr_data = wr_data_d;
+        //     we = 1;
+        // end else begin
+        //     wr_data = rd_data;
+        //     we = 0;
+        // end
+
+        enb = 0;
+    end
 endmodule

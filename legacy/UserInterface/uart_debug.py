@@ -1,78 +1,115 @@
 import serial
 
-def get_data(data_type, address):
+def get_data(cmd, address):
     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
-    str = data_type
+    # Send command read RAM command
+    str = cmd
     ser.write(bytes.fromhex(str))
+    # Send rest of the address
     str = address
     ser.write(bytes.fromhex(str))
     readstr = ""
+    response = ""
+
+    # Read the length (ignore for now)
+    read_len = ser.read(1)
+
+    print("Got length ", read_len)
 
     for i in range(64):
-        readstr = ser.read(1).decode("ascii") + readstr
+        readstr = readstr + ser.read(1).decode("ascii")
+
+    # Read status response
+    for i in range(4):
+        response = response + ser.read(1).decode("ascii")
+
+    print("Finished read successfully: ", response)
 
     ser.close()
     return readstr
 
-def set_data(data_type, address, data):
+def set_data(cmd, address, data_len, data):
     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
-    str = data_type
+    # Write the command
+    str = cmd
     ser.write(bytes.fromhex(str))
+    # Send the rest of the address
     str = address
     ser.write(bytes.fromhex(str))
+    # Send the data length
+    str = data_len
+    ser.write(bytes.fromhex(str))
+
+    print("Padding data with ", 64-len(data), " zeros")
     for i in range(64-len(data)):
         ser.write(bytes.fromhex('00'))
     str = data.encode("ascii")
     ser.write(str)
-    readstr = ""
+
+    response = ""
 
     for i in range(4):
-        readstr = ser.read(1).decode("ascii") + readstr
+        response = response + ser.read(1).decode("ascii")
 
+    print("Finished read successfully: ", response)
     ser.close()
-    return readstr
+    return response
 
-def write():
-    data_type = input("What kind of data type would you like to read? Domain name (d), username (u) or password (p): ")
-    address = input("What address would you like read from (in hex)?: ")
-    data = input("What would you like to write: ")
-    cmd = 0
-    
-    if(data_type == "d"):
-        cmd += 0
-    elif(data_type == "u"):
-        cmd += 2
-    elif(data_type == "p"):
-        cmd += 3
-    else:
-        print("Not a valid data type")
-        return
-    
-    string = "0" + str(cmd)
-    readstr = set_data("0" + str(cmd), address, data[0:63])
-    if(data_type == "d"):
-        readstr = set_data("0" + str(cmd+1), address, data[63:])
-    print("Writing ", data, " to address ", address, ": ", readstr)
+# def set_data(data_type, address, data):
+#     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
+#     str = data_type
+#     ser.write(bytes.fromhex(str))
+#     str = address
+#     ser.write(bytes.fromhex(str))
+#     str = 64
+#     ser.write(str)
+#     for i in range(64-len(data)):
+#         ser.write(bytes.fromhex('00'))
+#     str = data.encode("ascii")
+#     ser.write(str)
+#     readstr = ""
+
+#     for i in range(4):
+#         readstr = ser.read(1).decode("ascii") + readstr
+
+#     ser.close()
+#     return readstr
 
 def read():
-    data_type = input("What kind of data type would you like to read? Domain name (d), username (u) or password (p): ")
+    cmd = input("What is the command you would like to send?: ")
+    address = input("What is the rest of the address (including the data type at the end): ")
+
+    readstr = get_data(cmd, address)
+    print("Reading at address ", cmd[3:], address, ": ", readstr)
+    # data_type = input("What kind of data type would you like to read? Domain name (d), username (u) or password (p): ")
+    # address = input("What address would you like read from (in hex)?: ")
+    # cmd = 80
+    
+    # if(data_type == "d"):
+    #     cmd += 0
+    # elif(data_type == "u"):
+    #     cmd += 2
+    # elif(data_type == "p"):
+    #     cmd += 3
+    # else:
+    #     print("Not a valid data type")
+    #     return
+    
+    # readstr = get_data(str(cmd), address)
+    # if(data_type == "d"):
+    #     readstr += get_data(str(cmd+1), address)
+    # print("Reading at address ", address, ": ", readstr)
+
+def write():
+    cmd = input("What is the command you would like to send?: ")
     address = input("What address would you like read from (in hex)?: ")
-    cmd = 80
+    data_len = input("What is the length of the data? (in hex): ")
+    data = input("What would you like to write: ")
+
     
-    if(data_type == "d"):
-        cmd += 0
-    elif(data_type == "u"):
-        cmd += 2
-    elif(data_type == "p"):
-        cmd += 3
-    else:
-        print("Not a valid data type")
-        return
-    
-    readstr = get_data(str(cmd), address)
-    if(data_type == "d"):
-        readstr += get_data(str(cmd+1), address)
-    print("Reading at address ", address, ": ", readstr)
+    # string = "0" + str(cmd)
+    readstr = set_data(cmd, address, data_len, data)
+    print("Writing ", data, " to address ", address, ": ", readstr)
 
 def get_pw_count():
     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)

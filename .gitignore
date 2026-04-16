@@ -72,6 +72,11 @@
 !keylimepi_fpga/src/rtl/pw_sync/sim/
 !keylimepi_fpga/src/rtl/pw_sync/sim/*.sv
 
+!keylimepi_fpga/src/rtl/regmap
+!keylimepi_fpga/src/rtl/regmap/README.md
+!keylimepi_fpga/src/rtl/regmap/src
+!keylimepi_fpga/src/rtl/regmap/src/regmap.sv
+
 !legacy
 !legacy/lcd/
 !legacy/lcd/*.py
