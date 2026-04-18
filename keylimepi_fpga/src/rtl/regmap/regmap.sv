@@ -45,5 +45,14 @@ module regmap #(
 
     logic awvalid_reg;
     logic [ADDR_WIDTH-1:0] awaddr_reg;
+    logic [DATA_WIDTH-1:0] wdata_reg;
+
+    //=============================================
+    // Registers
+    //=============================================
+    logic [DATA_WIDTH-1:0] version_reg;
+    logic [DATA_WIDTH-1:0] scratchpad_reg;
+    logic [DATA_WIDTH-1:0] num_creds_reg;
+    logic [DATA_WIDTH-1:0] mst_pw_hash_reg;
 
 endmodule

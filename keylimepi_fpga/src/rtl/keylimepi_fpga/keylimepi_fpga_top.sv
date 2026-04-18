@@ -101,69 +101,69 @@ module keylimepi_fpga_top (
         .enb(enb)
     );
     
-    axis_data_fifo_0 rx_fifo (
-        .s_axis_aresetn(~rst),
-        .s_axis_aclk(clk),
-        .s_axis_tvalid(rx_valid),
-        .s_axis_tready(),
-        .s_axis_tdata(rx_byte),
-        .m_axis_tvalid(rx_fifo_val),
-        .m_axis_tready(rx_fifo_rdy),
-        .m_axis_tdata(rx_fifo_out)
-      );
+    // uart_buf rx_fifo (
+    //     .s_axis_aresetn(~rst),
+    //     .s_axis_aclk(clk),
+    //     .s_axis_tvalid(rx_valid),
+    //     .s_axis_tready(),
+    //     .s_axis_tdata(rx_byte),
+    //     .m_axis_tvalid(rx_fifo_val),
+    //     .m_axis_tready(rx_fifo_rdy),
+    //     .m_axis_tdata(rx_fifo_out)
+    //   );
       
-      axis_data_fifo_0 tx_fifo (
-        .s_axis_aresetn(~rst),
-        .s_axis_aclk(clk),
-        .s_axis_tvalid(tx_fifo_val),
-        .s_axis_tready(tx_fifo_rdy),
-        .s_axis_tdata(tx_fifo_in),
-        .m_axis_tvalid(tx_valid),
-        .m_axis_tready(tx_ready),
-        .m_axis_tdata(tx_byte)
-      );
+    //   uart_buf tx_fifo (
+    //     .s_axis_aresetn(~rst),
+    //     .s_axis_aclk(clk),
+    //     .s_axis_tvalid(tx_fifo_val),
+    //     .s_axis_tready(tx_fifo_rdy),
+    //     .s_axis_tdata(tx_fifo_in),
+    //     .m_axis_tvalid(tx_valid),
+    //     .m_axis_tready(tx_ready),
+    //     .m_axis_tdata(tx_byte)
+    //   );
       
-    //    rv_fifo #(
-//  	    .DATA_WIDTH(8),
-//  	    .FIFO_DEPTH(2048)
-//    ) tx_fifo (
-//        .clk(clk),
-//        .rst_n(~rst),
-        
-//        .in_data(tx_fifo_in),
-//        .in_val(tx_fifo_val),
-//        .in_rdy(tx_fifo_rdy),
+    rv_fifo #(
+ 	    .DATA_WIDTH(8),
+ 	    .FIFO_DEPTH(2048)
+    ) tx_fifo (
+        .clk(clk),
+        .rst_n(~rst),
+            
+        .in_data(tx_fifo_in),
+        .in_val(tx_fifo_val),
+        .in_rdy(tx_fifo_rdy),
 
-//        .out_data(tx_byte),
-//        .out_val(tx_valid),
-//        .out_rdy(tx_ready),
+        .out_data(tx_byte),
+        .out_val(tx_valid),
+        .out_rdy(tx_ready),
 
-//        .data_count(),
-//        .empty(),
-//        .full()
-//    );
+        .data_count(),
+        .empty(),
+        .full()
+    );
 
 
     // Will need error state to transmit message saying this fifo is full
-//    rv_fifo #(
-//  	    .DATA_WIDTH(8),
-//  	    .FIFO_DEPTH(2048)
-//    ) rx_fifo (
-//        .clk(clk),
-//        .rst_n(~rst),
-        
-//        .in_data(rx_byte),
-//        .in_val(rx_valid),
-//        .in_rdy(),
+   rv_fifo #(
+ 	    .DATA_WIDTH(8),
+ 	    .FIFO_DEPTH(2048)
+    ) rx_fifo (
+        .clk(clk),
+        .rst_n(~rst),
+            
+        .in_data(rx_byte),
+        .in_val(rx_valid),
+        .in_rdy(),
 
-//        .out_data(rx_fifo_out),
-//        .out_val(rx_fifo_val),
-//        .out_rdy(rx_fifo_rdy),
+        .out_data(rx_fifo_out),
+        .out_val(rx_fifo_val),
+        .out_rdy(rx_fifo_rdy),
 
-//        .data_count(),
-//        .empty(),
-//        .full()
-//    );
+        .data_count(),
+        .empty(),
+        .full()
+    );
 
     serial_interface u_serial_if (
         .clk(clk),

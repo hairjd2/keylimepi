@@ -25,13 +25,16 @@ parameter DATA_WIDTH = 128
 );
     
     // state machine
-    enum {init, wait_client, init_resp, wait_pw, check_pw, output_resp, idle, get_addr, wait_for_len, wait_for_len2, send_len, send_data, get_len, get_data} curr_state;
+    // (* mark_debug = "true" *) enum {init, wait_client, init_resp, wait_pw, check_pw, output_resp, idle, get_addr, wait_for_len, wait_for_len2, send_len, send_data, get_len, get_data} curr_state;
+    (* mark_debug = "true" *) enum {init, output_resp, idle, get_addr, wait_for_len, wait_for_len2, send_len, send_data, get_len, get_data} curr_state;
 
     logic op_type_d, op_type_q;
-    logic [5:0] byte_counter;
-    logic [511:0] wr_data_d, wr_data_q;
+    (* mark_debug = "true" *) logic [5:0] byte_counter;
+    logic [511:0] wr_data_d;
+    (* mark_debug = "true" *) logic [511:0] wr_data_q;
     logic [31:0] resp_code_d, resp_code_q;
-    logic [11:0] addr_d, addr_q;
+    logic [11:0] addr_d;
+    (* mark_debug = "true" *) logic [11:0] addr_q;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
@@ -65,6 +68,12 @@ parameter DATA_WIDTH = 128
                 end
                 send_len: begin
                     curr_state <= send_data;
+                    // case(addr_q[1:0]) // TODO: Make this work, only setting the counter to 0 for some reason
+                    //     2'b00: byte_counter = rd_data[485:480];
+                    //     2'b01: byte_counter = rd_data[493:488];
+                    //     2'b10: byte_counter = rd_data[501:496];
+                    //     2'b11: byte_counter = rd_data[509:504];
+                    // endcase
                     byte_counter <= '1;
                 end
                 send_data: begin
@@ -77,8 +86,10 @@ parameter DATA_WIDTH = 128
                     end
                 end
                 get_len: begin
-                    curr_state <= get_data;
-                    byte_counter <= '1;
+                    if(rx_valid) begin
+                        curr_state <= get_data;
+                        byte_counter <= '1;
+                    end
                 end
                 get_data: begin
                     if(rx_valid) begin
@@ -129,7 +140,7 @@ parameter DATA_WIDTH = 128
     end
 
     always_comb begin
-        rx_ready = rx_valid;
+        rx_ready = 1;
 
         if(curr_state == send_len) begin
             case(addr_q[1:0])
@@ -184,7 +195,7 @@ parameter DATA_WIDTH = 128
             wr_data = wr_data_q;
         end
 
-        if(curr_state == get_data) begin
+        if(curr_state == get_data && rx_valid) begin
             wr_data_d = {wr_data_q[503:0], rx_data};
         end else if(curr_state == idle) begin
             wr_data_d = '0;
