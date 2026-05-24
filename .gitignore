@@ -7,6 +7,7 @@
 !keylimepi_fpga
 !keylimepi_fpga/README.md
 !keylimepi_fpga/build
+!keylimepi_fpga/build/makefile
 !keylimepi_fpga/build/scripts/
 !keylimepi_fpga/build/scripts/*.tcl
 !keylimepi_fpga/build/scripts/*.sh

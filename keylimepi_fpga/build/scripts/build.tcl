@@ -16,6 +16,7 @@ proc setup_project {rtl_dir ip_dir const_dir origin_dir} {
 
     # add source files
     read_verilog -sv "$rtl_dir/keylimepi_fpga/keylimepi_pkg.sv"
+    read_verilog -sv "$rtl_dir/regmap/regmap.sv"
     read_verilog -sv "$rtl_dir/serial_interface/UART_RX.sv"
     read_verilog -sv "$rtl_dir/serial_interface/UART_TX.sv"
     read_verilog -sv "$rtl_dir/pw_sync/bram_if.sv"
