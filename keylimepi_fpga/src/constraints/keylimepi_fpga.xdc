@@ -195,3 +195,4 @@ set_property CONFIG_MODE SPIx4 [current_design]
 set_property INTERNAL_VREF 0.675 [get_iobanks 34]
 
 
+

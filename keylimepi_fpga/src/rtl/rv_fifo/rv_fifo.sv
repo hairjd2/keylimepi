@@ -21,6 +21,10 @@ module rv_fifo #(
 	logic [DATA_WIDTH-1:0] mem [FIFO_DEPTH-1:0];
   	logic [$clog2(FIFO_DEPTH)-1:0] rd_ptr;
   	logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr;
+	logic [$clog2(FIFO_DEPTH)-1:0] rd_ptr_plusone;
+  	logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr_plusone;
+	logic [$clog2(FIFO_DEPTH)-1:0] rd_ptr_minusone;
+  	logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr_minusone;
 
 	logic in_xact;
 	logic out_xact;
@@ -37,6 +41,15 @@ module rv_fifo #(
 	assign full = wr_ptr == rd_ptr - 1;
 	assign out_val = !empty;
 	assign in_rdy = !full;
+
+	// always_ff @(posedge clk or negedge rst_n) begin
+	// 	if(!rst_n) begin
+	// 		rd_ptr_plusone <= rd_ptr+ 1;
+	// 		wr_ptr_plusone <= wr_ptr+ 1;
+	// 		rd_ptr_minusone <= rd_ptr+ 1;
+	// 		wr_ptr_minusone <= wr_ptr+ 1;
+	// 	end
+	// end
 
   	always_ff @(posedge clk or negedge rst_n) begin
   	  	if(!rst_n) begin

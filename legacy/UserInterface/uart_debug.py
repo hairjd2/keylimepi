@@ -11,17 +11,23 @@ def get_data(cmd, address):
     readstr = ""
     response = ""
 
+    if address[-1] == "3" or address[-1] == "7" or address[-1] == "b" or address[-1] == "f":
+        total_len = 60
+    else:
+        total_len = 64
+
     # Read the length (ignore for now)
     read_len = ser.read(1)
 
-    print("Got length ", read_len)
+    print("Got length ", int.from_bytes(read_len))
 
-    for i in range(64):
-        readstr = readstr + ser.read(1).decode("ascii")
+    readstr = ser.read(total_len).decode("ascii")
+    # readstr = ser.read(int.from_bytes(read_len)).decode("ascii")
 
     # Read status response
-    for i in range(4):
-        response = response + ser.read(1).decode("ascii")
+    # for i in range(4):
+      #  response = response + ser.read(1).decode("ascii")
+    response = ser.read(4).decode("ascii")
 
     print("Finished read successfully: ", response)
 
@@ -40,8 +46,13 @@ def set_data(cmd, address, data_len, data):
     str = data_len
     ser.write(bytes.fromhex(str))
 
-    print("Padding data with ", 64-len(data), " zeros")
-    for i in range(64-len(data)):
+    if address[-1] == "3" or address[-1] == "7" or address[-1] == "b" or address[-1] == "f":
+        total_len = 60
+    else:
+        total_len = 64
+
+    print("Padding data with ", total_len-len(data), " zeros")
+    for i in range(total_len-len(data)):
         ser.write(bytes.fromhex('00'))
     str = data.encode("ascii")
     ser.write(str)
@@ -54,6 +65,52 @@ def set_data(cmd, address, data_len, data):
     print("Finished read successfully: ", response)
     ser.close()
     return response
+
+def get_reg(cmd, address):
+    ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
+    # Send command read RAM command
+    str = cmd
+    ser.write(bytes.fromhex(str))
+    # Send rest of the address
+    str = address
+    ser.write(bytes.fromhex(str))
+    readstr = ""
+    response = ""
+
+    readstr = ser.read(4)
+
+    # Read status response
+    # for i in range(4):
+      #  response = response + ser.read(1).decode("ascii")
+    response = ser.read(4).decode("ascii")
+
+    print("Finished read successfully: ", response)
+
+    ser.close()
+    return readstr
+
+def set_reg(cmd, address, data):
+    ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
+
+    str = cmd
+    ser.write(bytes.fromhex(str))
+
+    str = address
+    ser.write(bytes.fromhex(str))
+    response = ""
+
+    print(data[0:2])
+    print(data[2:4])
+    print(data[4:6])
+    print(data[6:8])
+
+    ser.write(bytes.fromhex(data))
+    
+    response = ser.read(4).decode("ascii")
+
+    print("Finished write successfully: ", response)
+
+    ser.close()
 
 # def set_data(data_type, address, data):
 #     ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
@@ -111,43 +168,6 @@ def write():
     readstr = set_data(cmd, address, data_len, data)
     print("Writing ", data, " to address ", address, ": ", readstr)
 
-def get_pw_count():
-    ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
-    str = "FF"
-    ser.write(bytes.fromhex(str))
-    str = "00" # Doesn't matter what we write here
-    ser.write(bytes.fromhex(str))
-    readstr = b""
-
-    for i in range(64):
-        # readstr = ser.read(1).decode("ascii") + readstr
-        readstr = ser.read(1) + readstr
-
-    ser.close()
-    # print("Got type ", int(readstr.decode("ascii"), 16))
-    print("Got count ", readstr, " ", int.from_bytes(readstr, byteorder='big'))
-    # print("Got count", int.from_bytes(readstr, byteorder='big'))
-    # return int.from_bytes(readstr, byteorder='big')
-    # int(readstr, 16)
-
-def set_pw_count(num_pw):
-    ser = serial.Serial("/dev/ttyUSB1", baudrate=115200)
-    str = "7F"
-    ser.write(bytes.fromhex(str))
-    str = "00"
-    ser.write(bytes.fromhex(str))
-    print(int.to_bytes(num_pw), "with length", len(int.to_bytes(num_pw)))
-    for i in range(64-len(int.to_bytes(num_pw))):
-        ser.write(bytes.fromhex('00'))
-    ser.write(int.to_bytes(num_pw))
-    readstr = ""
-
-    for i in range(4):
-        readstr = ser.read(1).decode("ascii") + readstr
-
-    ser.close()
-    return readstr
-
 def run():
     choice = 0
 
@@ -164,10 +184,15 @@ def run():
         elif(choice == 2):
             write()
         elif(choice == 3):
-            get_pw_count()
+            cmd = input("What is the command you would like to send?: ")
+            addr = input("What is the rest of the address: ")
+            reg_data = get_reg(cmd, addr)
+            print("Got register value: ", reg_data)
         elif(choice == 4):
-            num_pw = input("What would you like to write: ")
-            set_pw_count(int(num_pw))
+            cmd = input("What is the command you would like to send?: ")
+            addr = input("What is the rest of the address: ")
+            data = input("What is data you would like to set the data at?: ")
+            set_reg(cmd, addr, data)
         elif(choice == 5):
             break
 
