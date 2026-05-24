@@ -2,6 +2,7 @@ use std::io;
 
 mod uart;
 mod gui;
+mod tests;
 
 fn get_num_input() -> u8 {
     // Initialize new string

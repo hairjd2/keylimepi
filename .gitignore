@@ -7,6 +7,7 @@
 !keylimepi_fpga
 !keylimepi_fpga/README.md
 !keylimepi_fpga/build
+!keylimepi_fpga/build/makefile
 !keylimepi_fpga/build/scripts/
 !keylimepi_fpga/build/scripts/*.tcl
 !keylimepi_fpga/build/scripts/*.sh
@@ -21,56 +22,50 @@
 !keylimepi_fpga/src/ip/pw_ram
 !keylimepi_fpga/src/ip/pw_ram/pw_ram.xci
 
+!keylimepi_fpga/src/ip/uart_buf
+!keylimepi_fpga/src/ip/uart_buf/uart_buf.xci
+
 !keylimepi_fpga/src/rtl
 
 !keylimepi_fpga/src/rtl/aes_cipher
-!keylimepi_fpga/src/rtl/aes_cipher/README.md
-!keylimepi_fpga/src/rtl/aes_cipher/src/
-!keylimepi_fpga/src/rtl/aes_cipher/src/*.sv
+!keylimepi_fpga/src/rtl/aes_cipher/README.md]
+!keylimepi_fpga/src/rtl/aes_cipher/*.sv
 !keylimepi_fpga/src/rtl/aes_cipher/sim/
 !keylimepi_fpga/src/rtl/aes_cipher/sim/*.sv
 
-!keylimepi_fpga/src/rtl/AXI2SPI
-!keylimepi_fpga/src/rtl/AXI2SPI/README.md
-!keylimepi_fpga/src/rtl/AXI2SPI/src/
-!keylimepi_fpga/src/rtl/AXI2SPI/src/*.sv
-!keylimepi_fpga/src/rtl/AXI2SPI/sim/
-!keylimepi_fpga/src/rtl/AXI2SPI/sim/*.sv
-
 !keylimepi_fpga/src/rtl/ctrl_logic
 !keylimepi_fpga/src/rtl/ctrl_logic/README.md
-!keylimepi_fpga/src/rtl/ctrl_logic/src/
-!keylimepi_fpga/src/rtl/ctrl_logic/src/*.sv
+!keylimepi_fpga/src/rtl/ctrl_logic/*.sv
 !keylimepi_fpga/src/rtl/ctrl_logic/sim/
 !keylimepi_fpga/src/rtl/ctrl_logic/sim/*.sv
 
 !keylimepi_fpga/src/rtl/keylimepi_fpga
 !keylimepi_fpga/src/rtl/keylimepi_fpga/README.md
-!keylimepi_fpga/src/rtl/keylimepi_fpga/src/
-!keylimepi_fpga/src/rtl/keylimepi_fpga/src/*.sv
+!keylimepi_fpga/src/rtl/keylimepi_fpga/*.sv
 !keylimepi_fpga/src/rtl/keylimepi_fpga/sim/
 !keylimepi_fpga/src/rtl/keylimepi_fpga/sim/*.sv
 
 !keylimepi_fpga/src/rtl/rv_fifo
 !keylimepi_fpga/src/rtl/rv_fifo/README.md
-!keylimepi_fpga/src/rtl/rv_fifo/src/
-!keylimepi_fpga/src/rtl/rv_fifo/src/*.sv
+!keylimepi_fpga/src/rtl/rv_fifo/*.sv
 !keylimepi_fpga/src/rtl/rv_fifo/sim/
 !keylimepi_fpga/src/rtl/rv_fifo/sim/*.sv
 
 !keylimepi_fpga/src/rtl/serial_interface
 !keylimepi_fpga/src/rtl/serial_interface/README.md
-!keylimepi_fpga/src/rtl/serial_interface/src/
-!keylimepi_fpga/src/rtl/serial_interface/src/*.sv
+!keylimepi_fpga/src/rtl/serial_interface/*.sv
 !keylimepi_fpga/src/rtl/serial_interface/sim/
 !keylimepi_fpga/src/rtl/serial_interface/sim/*.sv
 
 !keylimepi_fpga/src/rtl/pw_sync
 !keylimepi_fpga/src/rtl/pw_sync/README.md
-!keylimepi_fpga/src/rtl/pw_sync/src/
-!keylimepi_fpga/src/rtl/pw_sync/src/*.sv
+!keylimepi_fpga/src/rtl/pw_sync/*.sv
 !keylimepi_fpga/src/rtl/pw_sync/sim/
 !keylimepi_fpga/src/rtl/pw_sync/sim/*.sv
+
+!keylimepi_fpga/src/rtl/regmap
+!keylimepi_fpga/src/rtl/regmap/README.md
+!keylimepi_fpga/src/rtl/regmap/*.sv
 
 !legacy
 !legacy/lcd/

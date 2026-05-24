@@ -21,11 +21,17 @@ module rv_fifo #(
 	logic [DATA_WIDTH-1:0] mem [FIFO_DEPTH-1:0];
   	logic [$clog2(FIFO_DEPTH)-1:0] rd_ptr;
   	logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr;
+	logic [$clog2(FIFO_DEPTH)-1:0] rd_ptr_plusone;
+  	logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr_plusone;
+	logic [$clog2(FIFO_DEPTH)-1:0] rd_ptr_minusone;
+  	logic [$clog2(FIFO_DEPTH)-1:0] wr_ptr_minusone;
 
 	logic in_xact;
 	logic out_xact;
 
 	logic [$clog2(FIFO_DEPTH):0] count_q;
+
+	logic [DATA_WIDTH-1:0] in_data_q; 
 
 	assign in_xact = in_val & in_rdy;
 	assign out_xact = out_val & out_rdy;
@@ -36,13 +42,22 @@ module rv_fifo #(
 	assign out_val = !empty;
 	assign in_rdy = !full;
 
+	// always_ff @(posedge clk or negedge rst_n) begin
+	// 	if(!rst_n) begin
+	// 		rd_ptr_plusone <= rd_ptr+ 1;
+	// 		wr_ptr_plusone <= wr_ptr+ 1;
+	// 		rd_ptr_minusone <= rd_ptr+ 1;
+	// 		wr_ptr_minusone <= wr_ptr+ 1;
+	// 	end
+	// end
+
   	always_ff @(posedge clk or negedge rst_n) begin
   	  	if(!rst_n) begin
   	  	  	rd_ptr <= '0;
   	  	  	wr_ptr <= '0;
 			count_q <= '0;
+			in_data_q <= '0;
 	    end else begin
-	        mem[wr_ptr] = in_data;
             if(in_xact && out_xact) begin
                 rd_ptr <= rd_ptr + 1;
                 wr_ptr <= wr_ptr + 1;
@@ -60,6 +75,10 @@ module rv_fifo #(
                 wr_ptr <= wr_ptr;
                 count_q <= count_q;
             end
+
+			in_data_q <= in_data;
+			if(in_xact)
+	        	mem[wr_ptr] <= in_data;
         end
   	end
 
