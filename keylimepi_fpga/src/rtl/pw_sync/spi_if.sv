@@ -1,18 +1,31 @@
 module spi_if (
-    input clk,
-    input rst_n,
-    // Sync request interface
-    input sync_req,
-    input [11:0] sync_addr,
-    output sync_ack,
-    // Input AXIS interface of data to write to flash
-    input [511:0] spi_wr_axis_data,
-    input spi_wr_axis_val,
-    output spi_wr_axis_rdy,
-    // Output AXIS interfae of data read from flash
-    output [511:0] spi_rd_axis_data,
-    output spi_rd_axis_val,
-    input spi_rd_axis_rdy,
+    input ACLK,
+    input ARESETn,
+    
+    input AWVALID,
+    output AWREADY,
+    input [23:0] AWADDR,
+    // input AWPROT,
+
+    input WVALID,
+    output WREADY,
+    input [511:0] AWDATA,
+    input [8:0] WSTRB,
+
+    output BVALID,
+    input BREADY,
+    output [1:0] BRESP,
+
+    input  ARVALID,
+    output ARREADY,
+    input  [ADDR_WIDTH-1:0] ARADDR,
+    // input ARPROT,
+
+    output RVALID,
+    input  RREADY,
+    output [DATA_WIDTH-1:0] RDATA,
+    output [1:0] RRESP,
+    
     // SPI I/F
     output CSn,
     output logic MOSI,
@@ -24,8 +37,8 @@ module spi_if (
 
     localparam READ_MEM = 8'h03;
     localparam FAST_READ = 8'h0B;
-    localparam WRITE_DIS = 8'h04;
-    localparam WRITE_EN = 8'h06;
+    localparam WR_DISABLE = 8'h04;
+    localparam WR_ENABLE = 8'h06;
     localparam PROG_PAGE = 8'h02;
 
     localparam READ_STAT_REG = 8'h05;
@@ -33,8 +46,21 @@ module spi_if (
 
     logic [7:0] state_counter;
 
-    enum {init, request_length, get_length, cmd_idle} curr_cmd_state;
-    enum {idle, wr_inst, wr_addr, wr_data, rd_inst, rd_addr, rd_data} curr_serdes_state;
+    //=============================================
+    // AXI-lite regsters
+    //=============================================
+    logic arvalid_reg;
+    logic [ADDR_WIDTH-1:0] araddr_reg;
+    logic rvalid_reg;
+    logic [DATA_WIDTH-1:0] rdata_reg;
+    logic [1:0] rresp;
+
+    logic slv_rden;
+    logic slv_wren;
+
+    enum {idle, set_cs, send_cmd, send_addr, send_data, rd_data} curr_state;
+
+    // enum {idle, wr_inst, wr_addr, wr_data, rd_inst, rd_addr, rd_data} curr_serdes_state;
 
     // assign CSn = (curr_cmd_state == cmd_idle) ? 1 : 0; // Once we leave the idle state, we want to chip select the flash
 
