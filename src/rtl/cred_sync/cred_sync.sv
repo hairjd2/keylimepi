@@ -1,4 +1,4 @@
-module pw_sync #(
+module cred_sync #(
     parameter ADDR_WIDTH    = 12,
     parameter DATA_WIDTH    = 512
 )(
@@ -119,25 +119,30 @@ module pw_sync #(
     );
 
    spi_if u_spi_if (
-        .clk(clk),
-        .rst_n(rst_n),
-        // Sync request interface
-        .sync_req(spi_sync_req),
-        .sync_addr(spi_sync_addr),
-        .sync_ack(spi_sync_ack),
-        // Input AXIS interface of data to write to flash
-        .spi_wr_axis_data,
-        .spi_wr_axis_val,
-        .spi_wr_axis_rdy,
-        // Output AXIS interfae of data read from flash
-        .spi_rd_axis_data,
-        .spi_rd_axis_val,
-        .spi_rd_axis_rdy,
-        // SPI I/F
+        .ACLK(clk),
+        .ARESETn(rst_n),
+        .AWVALID(0),
+        .AWREADY(),
+        .AWADDR(0),
+        .WVALID(0),
+        .WREADY(),
+        .AWDATA(0),
+        .WSTRB(0),
+        .BVALID(),
+        .BREADY(0),
+        .BRESP(),
+        .ARVALID(0),
+        .ARREADY(),
+        .ARADDR(0),
+        .RVALID(),
+        .RREADY(0),
+        .RDATA(),
+        .RRESP(),
         .CSn,
         .MOSI,
         .MISO,
         .SCK
     );
+    
 
 endmodule

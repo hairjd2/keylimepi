@@ -51,7 +51,7 @@ module keylimepi_fpga_top (
     
     logic init_sync_done;
 
-   pw_sync u_pw_sync (
+   cred_sync u_cred_sync (
         .clk(clk),
         .rst_n(~rst),
         
@@ -89,12 +89,13 @@ module keylimepi_fpga_top (
         .sync_input('0)
     );
 
-    pw_ram u_pw_ram (
+    cred_ram u_cred_ram (
         .clka(clk),
         .wea(wea),
         .addra(addra),
         .dina(wr_data),
         .douta(rd_data),
+        .ena(1),
 
         .clkb(clk),
         .web(web),

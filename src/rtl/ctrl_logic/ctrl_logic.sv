@@ -7,7 +7,7 @@ parameter DATA_WIDTH = 511
     input rst_n,
     
     // UART RX data
-    input [7:0] rx_data,
+    (* mark_debug = "true" *) input [7:0] rx_data,
     input rx_valid,
     output logic rx_ready,
     

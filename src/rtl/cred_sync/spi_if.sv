@@ -1,4 +1,7 @@
-module spi_if (
+module spi_if #(
+    parameter ADDR_WIDTH    = 12,
+    parameter DATA_WIDTH    = 512
+)(
     input ACLK,
     input ARESETn,
     

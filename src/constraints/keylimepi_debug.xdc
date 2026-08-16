@@ -1,0 +1,38 @@
+create_debug_core u_ila_0 ila
+set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
+set_property ALL_PROBE_SAME_MU_CNT 2 [get_debug_cores u_ila_0]
+set_property C_ADV_TRIGGER false [get_debug_cores u_ila_0]
+set_property C_DATA_DEPTH 4096 [get_debug_cores u_ila_0]
+set_property C_EN_STRG_QUAL true [get_debug_cores u_ila_0]
+set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_0]
+set_property C_TRIGIN_EN false [get_debug_cores u_ila_0]
+set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
+set_property port_width 1 [get_debug_ports u_ila_0/clk]
+connect_debug_port u_ila_0/clk [get_nets [list clk_IBUF_BUFG]]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
+set_property port_width 12 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {u_ctrl_logic/addr_q[0]} {u_ctrl_logic/addr_q[1]} {u_ctrl_logic/addr_q[2]} {u_ctrl_logic/addr_q[3]} {u_ctrl_logic/addr_q[4]} {u_ctrl_logic/addr_q[5]} {u_ctrl_logic/addr_q[6]} {u_ctrl_logic/addr_q[7]} {u_ctrl_logic/addr_q[8]} {u_ctrl_logic/addr_q[9]} {u_ctrl_logic/addr_q[10]} {u_ctrl_logic/addr_q[11]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
+set_property port_width 64 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {u_ctrl_logic/wr_data_q[0]} {u_ctrl_logic/wr_data_q[1]} {u_ctrl_logic/wr_data_q[2]} {u_ctrl_logic/wr_data_q[3]} {u_ctrl_logic/wr_data_q[4]} {u_ctrl_logic/wr_data_q[5]} {u_ctrl_logic/wr_data_q[6]} {u_ctrl_logic/wr_data_q[7]} {u_ctrl_logic/wr_data_q[8]} {u_ctrl_logic/wr_data_q[9]} {u_ctrl_logic/wr_data_q[10]} {u_ctrl_logic/wr_data_q[11]} {u_ctrl_logic/wr_data_q[12]} {u_ctrl_logic/wr_data_q[13]} {u_ctrl_logic/wr_data_q[14]} {u_ctrl_logic/wr_data_q[15]} {u_ctrl_logic/wr_data_q[16]} {u_ctrl_logic/wr_data_q[17]} {u_ctrl_logic/wr_data_q[18]} {u_ctrl_logic/wr_data_q[19]} {u_ctrl_logic/wr_data_q[20]} {u_ctrl_logic/wr_data_q[21]} {u_ctrl_logic/wr_data_q[22]} {u_ctrl_logic/wr_data_q[23]} {u_ctrl_logic/wr_data_q[24]} {u_ctrl_logic/wr_data_q[25]} {u_ctrl_logic/wr_data_q[26]} {u_ctrl_logic/wr_data_q[27]} {u_ctrl_logic/wr_data_q[28]} {u_ctrl_logic/wr_data_q[29]} {u_ctrl_logic/wr_data_q[30]} {u_ctrl_logic/wr_data_q[31]} {u_ctrl_logic/wr_data_q[32]} {u_ctrl_logic/wr_data_q[33]} {u_ctrl_logic/wr_data_q[34]} {u_ctrl_logic/wr_data_q[35]} {u_ctrl_logic/wr_data_q[36]} {u_ctrl_logic/wr_data_q[37]} {u_ctrl_logic/wr_data_q[38]} {u_ctrl_logic/wr_data_q[39]} {u_ctrl_logic/wr_data_q[40]} {u_ctrl_logic/wr_data_q[41]} {u_ctrl_logic/wr_data_q[42]} {u_ctrl_logic/wr_data_q[43]} {u_ctrl_logic/wr_data_q[44]} {u_ctrl_logic/wr_data_q[45]} {u_ctrl_logic/wr_data_q[46]} {u_ctrl_logic/wr_data_q[47]} {u_ctrl_logic/wr_data_q[48]} {u_ctrl_logic/wr_data_q[49]} {u_ctrl_logic/wr_data_q[50]} {u_ctrl_logic/wr_data_q[51]} {u_ctrl_logic/wr_data_q[52]} {u_ctrl_logic/wr_data_q[53]} {u_ctrl_logic/wr_data_q[54]} {u_ctrl_logic/wr_data_q[55]} {u_ctrl_logic/wr_data_q[56]} {u_ctrl_logic/wr_data_q[57]} {u_ctrl_logic/wr_data_q[58]} {u_ctrl_logic/wr_data_q[59]} {u_ctrl_logic/wr_data_q[60]} {u_ctrl_logic/wr_data_q[61]} {u_ctrl_logic/wr_data_q[62]} {u_ctrl_logic/wr_data_q[63]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
+set_property port_width 32 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {u_ctrl_logic/curr_state[0]} {u_ctrl_logic/curr_state[1]} {u_ctrl_logic/curr_state[2]} {u_ctrl_logic/curr_state[3]} {u_ctrl_logic/curr_state[4]} {u_ctrl_logic/curr_state[5]} {u_ctrl_logic/curr_state[6]} {u_ctrl_logic/curr_state[7]} {u_ctrl_logic/curr_state[8]} {u_ctrl_logic/curr_state[9]} {u_ctrl_logic/curr_state[10]} {u_ctrl_logic/curr_state[11]} {u_ctrl_logic/curr_state[12]} {u_ctrl_logic/curr_state[13]} {u_ctrl_logic/curr_state[14]} {u_ctrl_logic/curr_state[15]} {u_ctrl_logic/curr_state[16]} {u_ctrl_logic/curr_state[17]} {u_ctrl_logic/curr_state[18]} {u_ctrl_logic/curr_state[19]} {u_ctrl_logic/curr_state[20]} {u_ctrl_logic/curr_state[21]} {u_ctrl_logic/curr_state[22]} {u_ctrl_logic/curr_state[23]} {u_ctrl_logic/curr_state[24]} {u_ctrl_logic/curr_state[25]} {u_ctrl_logic/curr_state[26]} {u_ctrl_logic/curr_state[27]} {u_ctrl_logic/curr_state[28]} {u_ctrl_logic/curr_state[29]} {u_ctrl_logic/curr_state[30]} {u_ctrl_logic/curr_state[31]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
+set_property port_width 4 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {u_ctrl_logic/op_type_d[0]} {u_ctrl_logic/op_type_d[1]} {u_ctrl_logic/op_type_d[2]} {u_ctrl_logic/op_type_d[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
+set_property port_width 4 [get_debug_ports u_ila_0/probe4]
+connect_debug_port u_ila_0/probe4 [get_nets [list {u_ctrl_logic/op_type_q[0]} {u_ctrl_logic/op_type_q[1]} {u_ctrl_logic/op_type_q[2]} {u_ctrl_logic/op_type_q[3]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
+set_property port_width 6 [get_debug_ports u_ila_0/probe5]
+connect_debug_port u_ila_0/probe5 [get_nets [list {u_ctrl_logic/byte_counter[0]} {u_ctrl_logic/byte_counter[1]} {u_ctrl_logic/byte_counter[2]} {u_ctrl_logic/byte_counter[3]} {u_ctrl_logic/byte_counter[4]} {u_ctrl_logic/byte_counter[5]}]]
+set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
+set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
+set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
+connect_debug_port dbg_hub/clk [get_nets clk_IBUF_BUFG]
